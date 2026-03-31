@@ -1,7 +1,8 @@
 import express from "express";
 import type {Request,Response} from "express";
 import dotenv from "dotenv";
-import pool from "./models/db.ts";
+import pool from "./models/db.js";
+import { getUsers } from "./controllers/userController.js";
 
 dotenv.config();
 const app=express();
@@ -20,6 +21,8 @@ const checkConnection= async()=> {
    }
 }
 
+//API Routes
+app.get("/api/users",getUsers);
 
 app.get("/",(req:Request,res:Response) => {
     res.send("the api is working fine");
