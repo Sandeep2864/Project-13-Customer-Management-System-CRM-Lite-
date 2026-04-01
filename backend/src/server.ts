@@ -1,7 +1,8 @@
-import express, { NextFunction,Request,Response } from 'express';
-import dotenv from 'dotenv';
-import { testConnection } from './config/db.js';
-import cors from 'cors';
+import express from "express";
+import type {Request,Response} from "express";
+import dotenv from "dotenv";
+import pool from "./models/db.js";
+import { getUsers } from "./controllers/userController.js";
 
 const app=express();
 dotenv.config();
@@ -24,6 +25,8 @@ app.use( (err:Error,req:Request,res:Response,next:NextFunction) => {
    res.status(500).json({message:"Internal Server Error"})
 })
 
+//API Routes
+app.get("/api/users",getUsers);
 
 //port connection
 const PORT=(process.env.PORT||5000)
