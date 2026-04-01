@@ -16,6 +16,9 @@ app.use(cors({
 
 
 //here simple api
+app.get("/",(req,res) => {
+    res.json({message:"Welcome to CRM Lite API"})
+})
 
 
 //here global error handling middleware
