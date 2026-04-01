@@ -4,31 +4,34 @@ import dotenv from "dotenv";
 import pool from "./models/db.js";
 import { getUsers } from "./controllers/userController.js";
 
-dotenv.config();
 const app=express();
+dotenv.config();
+
 app.use(express.json());
+app.use(cors({
+    origin:process.env.CLIENT_URL || "http://localhost:5173",
+    credentials:true
+}))
 
-const PORT=process.env.PORT || 5000
+//mounting routes will be over here
 
-const checkConnection= async()=> {
-   try {
-     const connection=await pool.getConnection();
-     console.log("Successfully connected to the database");
-     connection.release();
-   }
-   catch(error) {
-    console.log('Db connection failed!',error);
-   }
-}
+
+//here simple api
+
+
+//here global error handling middleware
+app.use( (err:Error,req:Request,res:Response,next:NextFunction) => {
+   console.error('Unexpected handled Error',err.message)
+   res.status(500).json({message:"Internal Server Error"})
+})
 
 //API Routes
 app.get("/api/users",getUsers);
 
-app.get("/",(req:Request,res:Response) => {
-    res.send("the api is working fine");
-});
+//port connection
+const PORT=(process.env.PORT||5000)
+app.listen(PORT, async() => {
+    await testConnection();
+    console.log(`Server is running on port ${PORT}`);
+})
 
-app.listen(PORT,async ()=> {
-    await checkConnection();
-    console.log(`Server is running on port : ${PORT}`);
-});
