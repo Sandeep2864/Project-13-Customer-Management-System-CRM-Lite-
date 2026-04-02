@@ -1,26 +1,31 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  const [data, setData] = useState("");
-
-  useEffect(() => {
-    axios.get("http://localhost:5000/")
-      .then((res) => {
-        console.log(res.data);
-        setData(res.data);
-      })
-      .catch((err) => {
-        console.error("Error:", err);
-      });
-  }, []);
+  const token = localStorage.getItem("token");
 
   return (
-    <div>
-      <h1>CRM Lite</h1>
-      <h2>Backend Response:</h2>
-      <p>{data}</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+
+        <Route
+          path="/"
+          element={token ? <Navigate to="/dashboard" /> : <LoginPage />}
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+    </BrowserRouter>
   );
 }
 
