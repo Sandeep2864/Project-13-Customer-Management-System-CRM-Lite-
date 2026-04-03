@@ -15,8 +15,8 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Syne", "sans-serif"],
-        body: ["DM Sans", "sans-serif"],
+        display: ["Sora", "sans-serif"],
+        body: ["Manrope", "sans-serif"],
       },
     },
   },

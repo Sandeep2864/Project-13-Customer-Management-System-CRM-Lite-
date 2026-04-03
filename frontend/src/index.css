@@ -1,5 +1,5 @@
-/* ================= FONTS (MUST BE FIRST) ================= */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+/* ================= FONTS ================= */
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
 
 /* ================= TAILWIND ================= */
 @import "tailwindcss";
@@ -9,55 +9,132 @@
 
 /* ================= BASE ================= */
 @layer base {
+  :root {
+    --crm-bg: #f4f8f5;
+    --crm-soft: #eef6f1;
+    --crm-line: #deebe2;
+    --crm-text: #20303d;
+    --crm-accent: #43c28f;
+    --crm-accent-dark: #2e9871;
+    --crm-blue: #46a5ff;
+    --crm-gold: #f4b740;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-surface text-white font-body;
+    @apply min-h-screen bg-[var(--crm-bg)] font-body text-[var(--crm-text)] antialiased;
+    background-image:
+      radial-gradient(circle at top left, rgba(67, 194, 143, 0.08), transparent 24%),
+      linear-gradient(180deg, #fbfefc 0%, #f4f8f5 42%, #eef5fb 100%);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
   }
 }
 
 /* ================= UTILITIES ================= */
 @layer utilities {
-
-  .glass {
-    @apply bg-white/10 backdrop-blur-xl border border-white/20;
+  .crm-dashboard {
+    background-image:
+      radial-gradient(circle at top left, rgba(67, 194, 143, 0.08), transparent 25%),
+      linear-gradient(180deg, #ffffff 0%, #f5faf7 36%, #eef5fb 100%);
   }
 
-  .bg-crm {
-    @apply absolute inset-0 bg-cover bg-center;
-    background-image: url("https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop");
-    animation: zoomBg 20s infinite alternate ease-in-out;
-    filter: brightness(0.8) contrast(1.1);
+  .dashboard-panel {
+    box-shadow:
+      0 20px 60px rgba(15, 23, 42, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.72);
   }
 
-  @keyframes zoomBg {
-    from { transform: scale(1); }
-    to { transform: scale(1.08); }
+  .crm-logo-glow {
+    box-shadow:
+      0 18px 38px rgba(67, 194, 143, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
-  .input-group {
-    @apply relative;
+  .crm-cta {
+    position: relative;
+    overflow: hidden;
+    background-image: linear-gradient(135deg, var(--crm-accent), var(--crm-accent-dark));
   }
 
-  .input-line {
-    @apply w-full bg-transparent border-b border-slate-400 text-white py-2
-           focus:outline-none focus:border-brand-500 transition-all duration-300;
+  .crm-cta::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.28) 48%,
+      transparent 78%
+    );
+    transform: translateX(-140%);
+    animation: shimmerSweep 4.5s ease-in-out infinite;
   }
 
-  .input-label {
-    @apply absolute left-0 top-2 text-slate-400 text-sm
-           transition-all duration-300;
+  .reveal-card {
+    animation: revealUp 0.7s var(--delay, 0s) both;
   }
 
-  .input-line:focus + .input-label,
-  .input-line:not(:placeholder-shown) + .input-label {
-    @apply -top-3 text-xs text-brand-500;
+  .floating-orb {
+    animation: orbFloat 9s ease-in-out infinite;
   }
 
-  .animate-fadeIn {
-    animation: fadeIn 0.8s ease-in-out;
+  .floating-orb-delayed {
+    animation: orbFloat 11s ease-in-out infinite reverse;
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  .mesh-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.55) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.55) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  @keyframes revealUp {
+    from {
+      opacity: 0;
+      transform: translateY(22px) scale(0.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes orbFloat {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    50% {
+      transform: translate3d(0, 22px, 0) scale(1.05);
+    }
+  }
+
+  @keyframes shimmerSweep {
+    0%,
+    100% {
+      transform: translateX(-140%);
+    }
+    45%,
+    55% {
+      transform: translateX(140%);
+    }
   }
 }
