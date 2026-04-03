@@ -14,7 +14,7 @@ class User extends Model<InferAttributes<User>,InferCreationAttributes<User>> {
     declare readonly created_at:CreationOptional<Date>;
     declare readonly updated_at:CreationOptional<Date>;
   
-    async comparePasswords(plainPassword:string):Promise<boolean> {
+    async comparePassword(plainPassword:string):Promise<boolean> {
         return bcrypt.compare(plainPassword,this.password);
     }
 
@@ -51,7 +51,7 @@ User.init(
             unique:true,
             validate: {
                 isEmail:true,
-                nonEmpty:true,
+                notEmpty:true,
             }
         },
         password: {
@@ -75,7 +75,20 @@ User.init(
     {
         sequelize,
         tableName:"users",
+        modelName:"User"
     }
 );
+
+User.beforeCreate(async (user: User) => {
+    const salt=await bcrypt.genSalt(10);
+    user.password=await bcrypt.hash(user.password,salt);
+});
+
+User.beforeUpdate(async (user:User) => {
+    if(user.changed("password")) {
+       const salt=await bcrypt.genSalt(10);
+       user.password=await bcrypt.hash(user.password,salt);
+    }
+});
 
 export default User;
