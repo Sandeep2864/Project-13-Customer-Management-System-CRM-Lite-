@@ -63,8 +63,18 @@
 
   .crm-logo-glow {
     box-shadow:
-      0 18px 38px rgba(67, 194, 143, 0.28),
+      0 14px 28px rgba(115, 184, 92, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .crm-logo-idle {
+    transform-origin: center;
+    animation: logoDrift 4.8s ease-in-out infinite;
+    will-change: transform, filter;
+  }
+
+  .crm-logo-idle:hover {
+    animation-duration: 3.4s;
   }
 
   .crm-cta {
@@ -106,6 +116,78 @@
     background-size: 22px 22px;
   }
 
+  .auth-glass-card {
+    animation:
+      authCardEnter 0.9s ease-out both,
+      authCardFloat 10s ease-in-out 1s infinite;
+  }
+
+  .auth-badge {
+    animation: badgeDrift 8s ease-in-out 0.6s infinite;
+  }
+
+  .auth-title {
+    animation: revealUp 0.8s 0.08s both;
+  }
+
+  .auth-copy {
+    animation: revealUp 0.8s 0.16s both;
+  }
+
+  .auth-light-ray {
+    background:
+      radial-gradient(circle at 18% 10%, rgba(255, 255, 255, 0.18), transparent 28%),
+      linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.08) 44%, transparent 66%);
+    mix-blend-mode: screen;
+    animation: lightSweep 14s ease-in-out infinite;
+  }
+
+  .auth-input-shell {
+    transition:
+      border-color 180ms ease,
+      background-color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .auth-input-shell:focus-within {
+    border-color: rgba(255, 255, 255, 0.34);
+    background-color: rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
+    box-shadow:
+      0 14px 30px rgba(0, 0, 0, 0.16),
+      0 0 0 4px rgba(255, 255, 255, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  .auth-input-field {
+    caret-color: #b7e56b;
+  }
+
+  .auth-primary-button {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-primary-button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 16%,
+      rgba(255, 255, 255, 0.16) 42%,
+      rgba(255, 255, 255, 0.28) 50%,
+      transparent 74%
+    );
+    transform: translateX(-150%);
+    animation: buttonSweep 4.8s ease-in-out 1s infinite;
+  }
+
+  .crm-toast {
+    animation: toastSlideIn 240ms ease-out both;
+  }
+
   @keyframes revealUp {
     from {
       opacity: 0;
@@ -135,6 +217,89 @@
     45%,
     55% {
       transform: translateX(140%);
+    }
+  }
+
+  @keyframes logoDrift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) scale(1);
+      filter: drop-shadow(0 8px 16px rgba(115, 184, 92, 0.08));
+    }
+    50% {
+      transform: translate3d(0, -4px, 0) scale(1.02);
+      filter: drop-shadow(0 14px 24px rgba(115, 184, 92, 0.14));
+    }
+  }
+
+  @keyframes authCardEnter {
+    from {
+      opacity: 0;
+      transform: translateY(28px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes authCardFloat {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0, -8px, 0);
+    }
+  }
+
+  @keyframes badgeDrift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0, -4px, 0);
+    }
+  }
+
+  @keyframes lightSweep {
+    0%,
+    100% {
+      transform: translate3d(-4%, 0, 0);
+      opacity: 0.45;
+    }
+    50% {
+      transform: translate3d(4%, -1%, 0);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes buttonSweep {
+    0%,
+    100% {
+      transform: translateX(-150%);
+    }
+    48%,
+    58% {
+      transform: translateX(150%);
+    }
+  }
+
+  @keyframes toastSlideIn {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -18px, 0) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .crm-logo-idle {
+      animation: none;
     }
   }
 }

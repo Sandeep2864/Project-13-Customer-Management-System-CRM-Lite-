@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "../components/StatusBadge";
+import { useAuth } from "../hooks/useAuth";
 import { useCRM } from "../hooks/useCRM";
 import type { CustomerStatus } from "../types";
 
@@ -73,6 +74,7 @@ const getTone = (status: CustomerStatus) => {
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { customers, customersLoading, customerError } = useCRM();
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All");
   const [search, setSearch] = useState("");
@@ -129,7 +131,7 @@ const DashboardPage: React.FC = () => {
             Sales command center
           </div>
           <h1 className="font-display text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            Customers dashboard with a cleaner, brighter CRM flow.
+            Hello, {user?.name ?? "Admin"} welcome back.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-7 text-slate-500 sm:text-base">
             Track every customer state, move faster through leads, and keep your

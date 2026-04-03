@@ -19,7 +19,7 @@ const AppShell: React.FC = () => {
         <footer className="mt-auto flex flex-col gap-4 border-t border-[var(--crm-line)] pt-8 text-xs font-semibold text-slate-400 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 uppercase tracking-[0.16em]">
             <span className="h-2.5 w-2.5 rounded-full bg-[var(--crm-accent)] shadow-[0_0_20px_rgba(70,198,153,0.6)]" />
-            CRMLite Cloud - Professional Edition v1.0
+            CRM Workspace - Professional Edition v1.0
           </div>
 
           <div className="flex flex-wrap items-center gap-6">

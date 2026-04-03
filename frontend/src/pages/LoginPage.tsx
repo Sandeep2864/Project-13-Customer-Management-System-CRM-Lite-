@@ -1,12 +1,16 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import BrandLogo from "../components/BrandLogo";
 import { useAuth } from "../hooks/useAuth";
+import { useToast } from "../hooks/useToast";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuth();
+  const { showToast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -14,7 +18,12 @@ const LoginPage: React.FC = () => {
     setError("");
 
     try {
-      await login(email, password);
+      const currentUser = await login(email, password, { remember: rememberMe });
+      showToast({
+        tone: "success",
+        title: `Welcome back, ${currentUser.name}.`,
+        description: "You are now signed in to your CRM workspace.",
+      });
       navigate("/dashboard");
     } catch (loginError) {
       const message =
@@ -32,15 +41,14 @@ const LoginPage: React.FC = () => {
       <div className="mx-auto grid min-h-screen max-w-7xl items-center gap-12 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
         <section className="reveal-card relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-3 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[var(--crm-accent-dark)] shadow-[0_14px_30px_rgba(15,23,42,0.05)] backdrop-blur">
-            CRM Lite Workspace
+            CRM Workspace
           </div>
           <h1 className="mt-6 font-display text-5xl font-bold leading-tight text-slate-900 sm:text-6xl">
-            Connect your backend and start with a clean CRM workspace.
+            Welcome back to your CRM workspace <span className="animate-wave inline-block origin-[40%_40%]">👋</span>
           </h1>
+          
           <p className="mt-6 max-w-xl text-base leading-8 text-slate-500">
-            This frontend now loads with empty customer and admin data. Point the
-            login request to your backend URL and the app is ready for real API
-            integration.
+          A modern CRM platform for teams that want faster growth.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -65,16 +73,14 @@ const LoginPage: React.FC = () => {
 
         <section className="reveal-card relative z-10">
           <div className="rounded-[36px] border border-white/80 bg-white/85 p-8 shadow-[0_30px_80px_rgba(15,23,42,0.09)] backdrop-blur-xl sm:p-10">
-            <div className="flex items-center gap-3">
-              <div className="crm-logo-glow flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--crm-accent),var(--crm-accent-dark))] text-lg font-bold text-white">
-                C
-              </div>
+            <div className="flex items-center gap-4">
+              <BrandLogo
+                variant="full"
+                className="crm-logo-idle w-[88px] shrink-0 object-contain sm:w-[104px]"
+              />
               <div>
                 <p className="font-display text-2xl font-bold text-slate-900">
                   Sign in
-                </p>
-                <p className="text-sm text-slate-500">
-                  Use credentials from your backend
                 </p>
               </div>
             </div>
@@ -93,6 +99,7 @@ const LoginPage: React.FC = () => {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   className="w-full rounded-2xl border border-[var(--crm-line)] bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-emerald-200 focus:shadow-[0_0_0_4px_rgba(70,198,153,0.08)]"
+                  autoComplete="email"
                   required
                 />
               </label>
@@ -106,9 +113,29 @@ const LoginPage: React.FC = () => {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   className="w-full rounded-2xl border border-[var(--crm-line)] bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-emerald-200 focus:shadow-[0_0_0_4px_rgba(70,198,153,0.08)]"
+                  autoComplete="current-password"
                   required
                 />
               </label>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <label className="flex items-center gap-3 text-sm text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(event) => setRememberMe(event.target.checked)}
+                    className="h-4 w-4 rounded border-[var(--crm-line)] text-[var(--crm-accent)] focus:ring-2 focus:ring-emerald-200"
+                  />
+                  <span>Remember me</span>
+                </label>
+
+                <Link
+                  to="/forgot-password"
+                  className="text-sm font-semibold text-[var(--crm-accent-dark)] transition hover:text-[var(--crm-accent)]"
+                >
+                  Forgot password?
+                </Link>
+              </div>
 
               <button
                 type="submit"
@@ -119,13 +146,7 @@ const LoginPage: React.FC = () => {
               </button>
             </form>
 
-            <div className="mt-6 rounded-[24px] border border-[var(--crm-line)] bg-[linear-gradient(180deg,#fcfffd,#f5fbf8)] p-5 text-sm leading-7 text-slate-600">
-              <p className="font-semibold text-slate-900">Backend note</p>
-              <p className="mt-2">
-                Set `VITE_API_BASE_URL` to your backend URL and return a token
-                plus user object from `/api/auth/login`.
-              </p>
-            </div>
+        
           </div>
         </section>
       </div>

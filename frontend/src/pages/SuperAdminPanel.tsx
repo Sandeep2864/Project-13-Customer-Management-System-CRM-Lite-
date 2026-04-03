@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import ConfirModal from "../components/ConfirModal";
 import StatusBadge from "../components/StatusBadge";
 import { useCRM } from "../hooks/useCRM";
+import { useToast } from "../hooks/useToast";
 import type { AdminUserInput } from "../types";
 
 const emptyAdminForm: AdminUserInput = {
@@ -21,6 +22,7 @@ const SuperAdminPanel: React.FC = () => {
     deleteAdmin,
     clearAdminError,
   } = useCRM();
+  const { showToast } = useToast();
   const [formValues, setFormValues] = useState<AdminUserInput>(emptyAdminForm);
   const [submitting, setSubmitting] = useState(false);
   const [adminIdToDelete, setAdminIdToDelete] = useState<string | null>(null);
@@ -40,7 +42,12 @@ const SuperAdminPanel: React.FC = () => {
     clearAdminError();
 
     try {
-      await createAdmin(formValues);
+      const nextAdmin = await createAdmin(formValues);
+      showToast({
+        tone: "success",
+        title: "Admin created.",
+        description: `${nextAdmin.name} can now access the CRM workspace.`,
+      });
       setFormValues(emptyAdminForm);
     } catch {
       // The provider already stores the message in adminError.
@@ -184,7 +191,28 @@ const SuperAdminPanel: React.FC = () => {
                     type="button"
                     onClick={() => {
                       clearAdminError();
-                      void toggleAdminStatus(admin._id).catch(() => undefined);
+                      void toggleAdminStatus(admin._id)
+                        .then((updatedAdmin) => {
+                          if (!updatedAdmin) {
+                            return;
+                          }
+
+                          showToast({
+                            tone: "success",
+                            title: "Admin status updated.",
+                            description: `${updatedAdmin.name} is now ${updatedAdmin.status.toLowerCase()}.`,
+                          });
+                        })
+                        .catch((toggleError) => {
+                          showToast({
+                            tone: "error",
+                            title: "Status update failed.",
+                            description:
+                              toggleError instanceof Error
+                                ? toggleError.message
+                                : "Admin status could not be updated right now.",
+                          });
+                        });
                     }}
                     className="rounded-full border border-[var(--crm-line)] bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                   >
@@ -227,11 +255,27 @@ const SuperAdminPanel: React.FC = () => {
           }
 
           clearAdminError();
+          const adminName =
+            admins.find((admin) => admin._id === adminIdToDelete)?.name ?? "Admin";
           void deleteAdmin(adminIdToDelete)
             .then(() => {
+              showToast({
+                tone: "success",
+                title: "Admin deleted.",
+                description: `${adminName} has been removed successfully.`,
+              });
               setAdminIdToDelete(null);
             })
-            .catch(() => undefined);
+            .catch((deleteError) => {
+              showToast({
+                tone: "error",
+                title: "Delete failed.",
+                description:
+                  deleteError instanceof Error
+                    ? deleteError.message
+                    : "Admin account could not be deleted right now.",
+              });
+            });
         }}
       />
     </section>

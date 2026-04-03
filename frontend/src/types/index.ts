@@ -53,11 +53,19 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
+export interface LoginOptions {
+  remember?: boolean;
+}
+
 export interface AuthContextType {
   user: AuthUser | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<AuthUser>;
+  login: (
+    email: string,
+    password: string,
+    options?: LoginOptions
+  ) => Promise<AuthUser>;
   logout: () => void;
   loading: boolean;
 }
