@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import CustomerForm from "../components/CustomerForm";
 import { emptyCustomerInput } from "../data/mockData";
 import { useCRM } from "../hooks/useCRM";
+import { useToast } from "../hooks/useToast";
 import type { CustomerInput } from "../types";
 
 const AddCustomerPage: React.FC = () => {
   const navigate = useNavigate();
   const { addCustomer, clearCustomerError } = useCRM();
+  const { showToast } = useToast();
   const [values, setValues] = useState<CustomerInput>(emptyCustomerInput);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,11 @@ const AddCustomerPage: React.FC = () => {
 
     try {
       const nextCustomer = await addCustomer(values);
+      showToast({
+        tone: "success",
+        title: "Customer created.",
+        description: `${nextCustomer.name} is now part of your CRM pipeline.`,
+      });
       navigate(`/customers/${nextCustomer._id}`);
     } catch (submitError) {
       const message =

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import BrandLogo from "../components/BrandLogo";
 import { useAuth } from "../hooks/useAuth";
 
 const navItems = [
@@ -91,12 +92,13 @@ const Navbar: React.FC = () => {
             onClick={() => handleNavigate("/dashboard")}
             className="flex items-center gap-3 text-left"
           >
-            <div className="crm-logo-glow flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--crm-accent),var(--crm-accent-dark))] text-lg font-bold text-white">
-              C
-            </div>
+            <BrandLogo
+              variant="mark"
+              className="crm-logo-glow crm-logo-idle h-10 w-10 rounded-2xl bg-white/95 p-1.5 object-contain sm:h-11 sm:w-11"
+            />
             <div>
               <p className="font-display text-2xl font-bold tracking-tight text-slate-800">
-                CRMLite
+                CRM
               </p>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
                 {sectionLabel}

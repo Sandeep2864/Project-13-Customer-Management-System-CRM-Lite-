@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import ConfirModal from "../components/ConfirModal";
 import StatusBadge from "../components/StatusBadge";
 import { useCRM } from "../hooks/useCRM";
+import { useToast } from "../hooks/useToast";
 import type { Customer, CustomerStatus } from "../types";
 
 type FilterKey = "All" | CustomerStatus;
@@ -61,6 +62,7 @@ const CustomerTablePage: React.FC = () => {
     deleteCustomer,
     clearCustomerError,
   } = useCRM();
+  const { showToast } = useToast();
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All");
   const [sortBy, setSortBy] = useState<SortKey>("Newest");
@@ -257,11 +259,28 @@ const CustomerTablePage: React.FC = () => {
 
           setSubmitting(true);
           clearCustomerError();
+          const customerName =
+            customers.find((customer) => customer._id === customerIdToDelete)?.name ??
+            "Customer";
           void deleteCustomer(customerIdToDelete)
             .then(() => {
+              showToast({
+                tone: "success",
+                title: "Customer deleted.",
+                description: `${customerName} has been removed from the workspace.`,
+              });
               setCustomerIdToDelete(null);
             })
-            .catch(() => undefined)
+            .catch((deleteError) => {
+              showToast({
+                tone: "error",
+                title: "Delete failed.",
+                description:
+                  deleteError instanceof Error
+                    ? deleteError.message
+                    : "Customer could not be deleted right now.",
+              });
+            })
             .finally(() => {
               setSubmitting(false);
             });

@@ -1,23 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { isAxiosError } from "axios";
 import { getCurrentUser, loginUser, logoutUser } from "../api/authApi";
-import { STORAGE_KEYS } from "../data/mockData";
-import type { AuthUser } from "../types";
+import type { AuthUser, LoginOptions } from "../types";
+import {
+  clearStoredSession,
+  persistSession,
+  readStoredSession,
+} from "../utils/authStorage";
 import { AuthContext } from "./auth-context";
-
-const readStoredUser = () => {
-  const storedUser = localStorage.getItem(STORAGE_KEYS.user);
-
-  if (!storedUser) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(storedUser) as AuthUser;
-  } catch {
-    return null;
-  }
-};
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -25,18 +15,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem(STORAGE_KEYS.token);
-    const storedUser = readStoredUser();
+    const storedSession = readStoredSession();
 
-    if (storedToken) {
-      setToken(storedToken);
+    if (storedSession.token) {
+      setToken(storedSession.token);
     }
 
-    if (storedUser) {
-      setUser(storedUser);
+    if (storedSession.user) {
+      setUser(storedSession.user);
     }
 
-    if (!storedToken) {
+    if (!storedSession.token) {
       setLoading(false);
       return;
     }
@@ -48,13 +37,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const currentUser = await getCurrentUser();
 
         if (!ignore) {
-          localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(currentUser));
+          persistSession(
+            storedSession.token,
+            currentUser,
+            storedSession.remember
+          );
           setUser(currentUser);
         }
       } catch {
-        if (!ignore && !storedUser) {
-          localStorage.removeItem(STORAGE_KEYS.token);
+        if (!ignore) {
+          clearStoredSession();
           setToken(null);
+          setUser(null);
         }
       } finally {
         if (!ignore) {
@@ -70,19 +64,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const persistSession = (nextToken: string, nextUser: AuthUser) => {
-    localStorage.setItem(STORAGE_KEYS.token, nextToken);
-    localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(nextUser));
+  const applySession = (
+    nextToken: string,
+    nextUser: AuthUser,
+    remember: boolean
+  ) => {
+    persistSession(nextToken, nextUser, remember);
     setToken(nextToken);
     setUser(nextUser);
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string,
+    options?: LoginOptions
+  ) => {
     setLoading(true);
 
     try {
       const payload = await loginUser(email, password);
-      persistSession(payload.token, payload.user);
+      applySession(payload.token, payload.user, options?.remember ?? true);
       return payload.user;
     } catch (error) {
       if (isAxiosError(error)) {
@@ -100,8 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = () => {
     void logoutUser().catch(() => undefined);
-    localStorage.removeItem(STORAGE_KEYS.token);
-    localStorage.removeItem(STORAGE_KEYS.user);
+    clearStoredSession();
     setToken(null);
     setUser(null);
   };

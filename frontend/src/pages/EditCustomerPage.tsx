@@ -4,6 +4,7 @@ import { isAxiosError } from "axios";
 import { getCustomer } from "../api/customerApi";
 import CustomerForm from "../components/CustomerForm";
 import { useCRM } from "../hooks/useCRM";
+import { useToast } from "../hooks/useToast";
 import type { Customer, CustomerInput } from "../types";
 
 const mapCustomerToInput = (customer: Customer): CustomerInput => ({
@@ -20,6 +21,7 @@ const EditCustomerPage: React.FC = () => {
   const navigate = useNavigate();
   const { customerId } = useParams();
   const { getCustomerById, updateCustomer, clearCustomerError } = useCRM();
+  const { showToast } = useToast();
   const existingCustomer = customerId ? getCustomerById(customerId) : undefined;
   const [customer, setCustomer] = useState<Customer | null>(existingCustomer ?? null);
   const [values, setValues] = useState<CustomerInput | null>(
@@ -122,6 +124,11 @@ const EditCustomerPage: React.FC = () => {
       const updatedCustomer = await updateCustomer(customerId, values);
 
       if (updatedCustomer) {
+        showToast({
+          tone: "success",
+          title: "Customer updated.",
+          description: `${updatedCustomer.name} has been updated successfully.`,
+        });
         navigate(`/customers/${updatedCustomer._id}`);
       }
     } catch (submitError) {
