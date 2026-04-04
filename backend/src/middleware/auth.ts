@@ -33,7 +33,7 @@ export const protect = (req:AuthRequest,res:Response,next:NextFunction): void =>
     }
 };
 
-//super admin onlyr
+//super admin only
 export const superAdminOnly = (req:AuthRequest,res:Response,next:NextFunction):void => {
     if(req.user?.role!=="superadmin") {
         res.status(403).json({message:"access denied. SuperAdmin only."})

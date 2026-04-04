@@ -1,3 +1,4 @@
+import { AuthRequest, protect } from './../middleware/auth.js';
 import { Router, Request, Response } from "express";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { StringValue } from "ms";
@@ -53,7 +54,7 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
 });
 
 // GET /api/auth/me
-router.get("/me",async(req:Request,res:Response):Promise<void> => {
+router.get("/me",protect,async(req:AuthRequest,res:Response):Promise<void> => {
   const user=await User.findByPk(req.user!.id, {
     attributes:{exclude:["password"]},
   });
@@ -63,5 +64,9 @@ router.get("/me",async(req:Request,res:Response):Promise<void> => {
   }
   res.status(200).json(user);
 })
+
+router.post("/logout",protect,(_req:Request,res:Response):void => {
+  res.status(200).json({message:"Logged out successfully."});
+});
 
 export default router;
