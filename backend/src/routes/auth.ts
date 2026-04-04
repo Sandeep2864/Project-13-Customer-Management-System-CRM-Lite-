@@ -52,4 +52,16 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
   });
 });
 
+// GET /api/auth/me
+router.get("/me",async(req:Request,res:Response):Promise<void> => {
+  const user=await User.findByPk(req.user!.id, {
+    attributes:{exclude:["password"]},
+  });
+
+  if(!user) {
+    res.status(404).json({message:"User not found. "});
+  }
+  res.status(200).json(user);
+})
+
 export default router;
