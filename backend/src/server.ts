@@ -30,9 +30,31 @@ async function bootstrap(): Promise<void> {
     process.exit(1);
   }
 
+  //step:3 seed SuperAdmin if not exists
+  console.log('Checking seed data');
+
+  try {
+    const existing=await User.findByEmail('superadmin@crm.com');
+    if(!existing) {
+        await User.create({
+            name: "Super Admin",
+            email: "superadmin@crm.com",
+            password: "SuperAdmin@123",
+            role:"superadmin" 
+        });
+        console.log("✅ Super Admin seeded. change the password after first login.")
+    }
+    else {
+        console.log("✅ Seed check passed - super admin already exists");
+    }
+
+  }
+  catch(error) {
+    console.error("❌ seeding failed:",error);
+    process.exit(1);
+  }
 
 
-  
   const app = express();
 
   app.use(express.json());
