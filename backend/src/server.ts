@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import sequelize from "./config/db.js";
 import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
-
+import userRoutes from "./routes/users.js";
 //declare simple user model
 
 dotenv.config();
@@ -66,6 +66,7 @@ async function bootstrap(): Promise<void> {
   );
 
   app.use("/api/auth", authRoutes);
+  app.use("/api/users",userRoutes);
 
   app.get("/", (req, res) => {
     res.json({ message: "CRM LITE API IS RUNNING" });
