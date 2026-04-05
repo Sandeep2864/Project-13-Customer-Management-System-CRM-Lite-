@@ -59,4 +59,38 @@ router.post("/", async (req: AuthRequest, res: Response): Promise<void> => {
   }
 });
 
+
+router.put("/:id",async (req:AuthRequest,res:Response):Promise<void> => {
+  const id=Number(req.params.id);
+  const {name,email}=req.body;
+
+  if(isNaN(id)) {
+    res.status(400).json({message:"Invalid admin Id."});
+    return;
+  }
+
+  const user=await User.findByPk(id, {
+    attributes:{exclude:["password"]},
+  });
+
+  if(!user) {
+    res.status(404).json({message:"Admin not found"});
+    return;
+  }
+  try {
+    const updated=await user.update({name,email});
+    res.status(200).json(updated);
+  }
+  catch(error) {
+    if(error instanceof UniqueConstraintError) {
+      res.status(409).json({message:"Email already in use."});
+      return;
+    }
+    throw error;
+  }
+});
+
+
+
+
 export default router;
