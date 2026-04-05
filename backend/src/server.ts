@@ -5,6 +5,7 @@ import sequelize from "./config/db.js";
 import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
+import Customer from "./models/Customer.js";
 //declare simple user model
 
 dotenv.config();
@@ -87,3 +88,4 @@ async function bootstrap(): Promise<void> {
 bootstrap();
 
 void User;
+void Customer;
