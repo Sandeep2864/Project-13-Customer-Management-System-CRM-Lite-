@@ -13,8 +13,6 @@ const generateToken = (id: number, role: string): string => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET as string, options);
 };
 
-//create the post /api/auth/login
-
 router.post("/login", async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
@@ -24,19 +22,21 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
   }
 
   const user = await User.findByEmail(email);
+
   if (!user) {
-    res.status(401).json({ message: "Invalid Credentails. 1" });
+    res.status(401).json({ message: "Invalid email or password" });
     return;
   }
 
   if (!user.is_active) {
-    res.status(403).json({ message: "Account deactived. Contact SuperAdmin" });
+    res.status(403).json({ message: "Account is deactivated. Contact Super Admin" });
     return;
   }
 
   const isMatch = await user.comparePassword(password);
+
   if (!isMatch) {
-    res.status(401).json({ message: "Invalid credentails. 2" });
+    res.status(401).json({ message: "Invalid email or password" });
     return;
   }
 

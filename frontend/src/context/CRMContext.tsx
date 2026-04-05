@@ -36,6 +36,13 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
   const [adminsLoading, setAdminsLoading] = useState(false);
   const [customerError, setCustomerError] = useState<string | null>(null);
   const [adminError, setAdminError] = useState<string | null>(null);
+  const userRole =
+    typeof user === "object" &&
+    user !== null &&
+    "role" in user &&
+    typeof (user as { role?: unknown }).role === "string"
+      ? (user as { role: string }).role
+      : undefined;
 
   const fetchCustomers = useCallback(async () => {
     if (!isAuthenticated) {
@@ -62,7 +69,7 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
   }, [isAuthenticated]);
 
   const fetchAdmins = useCallback(async () => {
-    if (!isAuthenticated || user?.role !== "superadmin") {
+    if (!isAuthenticated || userRole !== "superadmin") {
       setAdmins([]);
       return [];
     }
@@ -83,7 +90,7 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setAdminsLoading(false);
     }
-  }, [isAuthenticated, user?.role]);
+  }, [isAuthenticated, userRole]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -96,13 +103,13 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
 
     void fetchCustomers();
 
-    if (user?.role === "superadmin") {
+    if (userRole === "superadmin") {
       void fetchAdmins();
     } else {
       setAdmins([]);
       setAdminError(null);
     }
-  }, [fetchAdmins, fetchCustomers, isAuthenticated, user?.role]);
+  }, [fetchAdmins, fetchCustomers, isAuthenticated, userRole]);
 
   const addCustomer = async (input: CustomerInput) => {
     try {

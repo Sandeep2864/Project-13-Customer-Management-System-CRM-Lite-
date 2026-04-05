@@ -1,109 +1,91 @@
 import React, { useEffect, useState } from "react";
-import { isAxiosError } from "axios";
-import { getCurrentUser, loginUser, logoutUser } from "../api/authApi";
-import type { AuthUser, LoginOptions } from "../types";
-import {
-  clearStoredSession,
-  persistSession,
-  readStoredSession,
-} from "../utils/authStorage";
+import { loginUser, getCurrentUser, logoutUser } from "../api/authApi";
+import type { AuthUser } from "../types";
 import { AuthContext } from "./auth-context";
+
+type LoginOptions = {
+  remember?: boolean;
+};
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔥 Load session on start
   useEffect(() => {
-    const storedSession = readStoredSession();
+    const stored = localStorage.getItem("crm_session");
 
-    if (storedSession.token) {
-      setToken(storedSession.token);
-    }
-
-    if (storedSession.user) {
-      setUser(storedSession.user);
-    }
-
-    if (!storedSession.token) {
+    if (!stored) {
       setLoading(false);
       return;
     }
 
-    let ignore = false;
+    const { token, user } = JSON.parse(stored);
 
-    const bootstrapAuth = async () => {
+    if (token) setToken(token);
+    if (user) setUser(user);
+
+    const bootstrap = async () => {
       try {
         const currentUser = await getCurrentUser();
-
-        if (!ignore) {
-          persistSession(
-            storedSession.token,
-            currentUser,
-            storedSession.remember
-          );
-          setUser(currentUser);
-        }
+        setUser(currentUser);
       } catch {
-        if (!ignore) {
-          clearStoredSession();
-          setToken(null);
-          setUser(null);
-        }
+        localStorage.removeItem("crm_session");
+        setUser(null);
+        setToken(null);
       } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
-    void bootstrapAuth();
-
-    return () => {
-      ignore = true;
-    };
+    bootstrap();
   }, []);
 
-  const applySession = (
-    nextToken: string,
-    nextUser: AuthUser,
-    remember: boolean
-  ) => {
-    persistSession(nextToken, nextUser, remember);
-    setToken(nextToken);
-    setUser(nextUser);
+  const applySession = (token: string, user: AuthUser, remember: boolean) => {
+    if (remember) {
+      localStorage.setItem(
+        "crm_session",
+        JSON.stringify({ token, user })
+      );
+    }
+    setToken(token);
+    setUser(user);
   };
 
-  const login = async (
+ const login = async (
     email: string,
     password: string,
     options?: LoginOptions
   ) => {
     setLoading(true);
-
     try {
-      const payload = await loginUser(email, password);
-      applySession(payload.token, payload.user, options?.remember ?? true);
-      return payload.user;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        throw new Error(
-          error.response?.data?.message ??
-            "Login failed. Check your backend URL and credentials."
-        );
-      }
+      const data = await loginUser(email, password);
 
-      throw new Error("Login failed. Please try again.");
+      applySession(
+        data.token,
+        data.user,
+        options?.remember ?? true
+      );
+
+      return data.user;
+    } catch (error: any) {
+      // ✅ Re-throw error so the handleSubmit in LoginPage can catch it
+      throw error;
     } finally {
+      // ✅ Stop loading so the button becomes clickable again
       setLoading(false);
     }
   };
 
-  const logout = () => {
-    void logoutUser().catch(() => undefined);
-    clearStoredSession();
-    setToken(null);
+  const logout = async () => {
+    try {
+      await logoutUser();
+    } catch {}
+
+    localStorage.removeItem("crm_session");
     setUser(null);
+    setToken(null);
   };
 
   return (
