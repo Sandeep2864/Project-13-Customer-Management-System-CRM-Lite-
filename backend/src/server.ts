@@ -6,6 +6,7 @@ import User from "./models/User.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import Customer from "./models/Customer.js";
+import customerRoutes from "./routes/customers.js";
 //declare simple user model
 
 dotenv.config();
@@ -68,6 +69,7 @@ async function bootstrap(): Promise<void> {
 
   app.use("/api/auth", authRoutes);
   app.use("/api/users",userRoutes);
+  app.use("/api/customers",customerRoutes);
 
   app.get("/", (req, res) => {
     res.json({ message: "CRM LITE API IS RUNNING" });

@@ -43,7 +43,7 @@ router.get("/:id",async (req:AuthRequest,res:Response):Promise<void> => {
 });
 
 //post /api/customer/:id
-router.post("/:id",async (req:AuthRequest,res:Response):Promise<void> => {
+router.post("/",async (req:AuthRequest,res:Response):Promise<void> => {
     const {name,company,email,phone,city,status,notes}=req.body;
 
     if(!name) {

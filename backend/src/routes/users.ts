@@ -112,7 +112,9 @@ router.patch("/:id/toggle",async (req:AuthRequest,res:Response):Promise<void> =>
         is_active:user.is_active,
     });
 
-    //delete /api/users/:id
+})
+
+  //delete /api/users/:id
     router.delete("/:id",async (req:AuthRequest,res:Response): Promise<void> => {
         const id=Number(req.params.id);
 
@@ -134,8 +136,6 @@ router.patch("/:id/toggle",async (req:AuthRequest,res:Response):Promise<void> =>
 
         await user.destroy();
         res.status(200).json({message:'Admin deleted successfully.'})
-    });
-
-})
+});
 
 export default router;
