@@ -1,8 +1,12 @@
 import axios from "axios";
 import { getStoredToken } from "../utils/authStorage";
 
+const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:5000",
+  baseURL: configuredBaseUrl && configuredBaseUrl.length > 0
+    ? configuredBaseUrl
+    : "http://localhost:5000",
 });
 
 axiosInstance.interceptors.request.use((config) => {

@@ -87,7 +87,7 @@ const CustomerProfilePage: React.FC = () => {
         </h1>
         <p className="text-sm leading-7 text-slate-500">
           {error ??
-            "The backend has not returned this customer yet. Once your API is connected, this page will show details and notes here."}
+            "This customer record is not available right now."}
         </p>
         <Link
           to="/customers"
@@ -169,22 +169,6 @@ const CustomerProfilePage: React.FC = () => {
             ))}
           </div>
         </section>
-
-        <aside className="reveal-card rounded-[32px] border border-white/80 bg-white/85 p-6 shadow-[0_22px_60px_rgba(15,23,42,0.07)] backdrop-blur-xl">
-          <h2 className="font-display text-2xl font-bold text-slate-900">
-            Interaction Notes
-          </h2>
-          <div className="mt-5 space-y-4">
-            <div className="rounded-[22px] border border-[var(--crm-line)] bg-[linear-gradient(180deg,#ffffff,#f9fbfa)] p-4 text-sm leading-7 text-slate-600">
-              {customer.notes?.trim() ||
-                "No interaction notes yet. Once the backend returns notes for this customer, they will appear here."}
-            </div>
-            <div className="rounded-[22px] border border-[var(--crm-line)] bg-[linear-gradient(180deg,#ffffff,#f9fbfa)] p-4 text-sm leading-7 text-slate-600">
-              Use this page to review notes before updating status or editing
-              the account record.
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
   );

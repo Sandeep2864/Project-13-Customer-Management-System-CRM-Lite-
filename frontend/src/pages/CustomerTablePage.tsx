@@ -98,10 +98,6 @@ const CustomerTablePage: React.FC = () => {
           <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-slate-900">
             Search, sort, and manage customers
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-500">
-            This page follows the project guide: status badges, protected CRUD
-            actions, search, sort, and filter controls.
-          </p>
         </div>
 
         <Link
@@ -234,8 +230,7 @@ const CustomerTablePage: React.FC = () => {
                 No customers found
               </p>
               <p className="mt-3 text-sm text-slate-500">
-                With the backend disconnected, this protected table stays empty.
-                Once your API is live, customers will populate here.
+                There are no customer records matching the current filters yet.
               </p>
             </div>
           ) : null}
@@ -245,7 +240,7 @@ const CustomerTablePage: React.FC = () => {
       <ConfirModal
         open={Boolean(customerIdToDelete)}
         title="Delete this customer?"
-        message="This will send a delete request to your backend. Without a connected API, the record will remain unavailable."
+        message="This will permanently remove the customer record from your CRM workspace."
         confirmLabel={submitting ? "Deleting..." : "Delete"}
         onCancel={() => {
           if (!submitting) {

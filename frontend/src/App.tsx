@@ -77,6 +77,8 @@ function App() {
           <Route path="/customers/new" element={<AddCustomerPage />} />
           <Route path="/customers/:customerId" element={<CustomerProfilePage />} />
           <Route path="/customers/:customerId/edit" element={<EditCustomerPage />} />
+          <Route path="/admins" element={<Navigate to="/superadmins" replace />} />
+          <Route path="/superadmin" element={<Navigate to="/superadmins" replace />} />
           <Route
             path="/superadmins"
             element={

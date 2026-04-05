@@ -6,8 +6,6 @@ import { useAuth } from "../hooks/useAuth";
 const navItems = [
   { label: "Dashboard", to: "/dashboard" },
   { label: "Customers", to: "/customers" },
-  { label: "Add Customer", to: "/customers/new" },
-  { label: "Manage Admins", to: "/admins", role: "superadmin" as const },
 ];
 
 const MenuIcon = ({ open }: { open: boolean }) => (
@@ -41,9 +39,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const visibleNavItems = navItems.filter(
-    (item) => !item.role || item.role === user?.role
-  );
+  const visibleNavItems = navItems;
 
   const initial = user?.name?.charAt(0).toUpperCase() ?? "S";
   const sectionLabel =
@@ -70,11 +66,6 @@ const Navbar: React.FC = () => {
     if (target === "/customers/new") {
       return location.pathname === "/customers/new";
     }
-
-    if (target === "/admins") {
-      return location.pathname.startsWith("/admins");
-    }
-
     return false;
   };
 

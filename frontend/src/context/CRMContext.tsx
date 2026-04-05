@@ -56,7 +56,7 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
       setCustomerError(
         getApiErrorMessage(
           error,
-          "Customers could not be loaded. Connect the backend to populate this table."
+          "Customers could not be loaded right now."
         )
       );
       return [];
@@ -83,7 +83,7 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
       setAdminError(
         getApiErrorMessage(
           error,
-          "Admin accounts could not be loaded. Connect the backend to manage admins."
+          "Admin accounts could not be loaded right now."
         )
       );
       return [];
