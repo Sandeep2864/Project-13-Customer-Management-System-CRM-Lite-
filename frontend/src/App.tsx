@@ -12,9 +12,9 @@ import LoginPage from "./pages/LoginPage";
 import SuperAdminPanel from "./pages/SuperAdminPanel";
 
 const LoadingScreen = () => (
-  <div className="flex min-h-screen items-center justify-center bg-[var(--crm-bg)]">
-    <div className="rounded-full border border-[var(--crm-line)] bg-white px-5 py-3 text-sm font-semibold text-slate-500 shadow-sm">
-      Loading workspace...
+  <div className="flex min-h-screen items-center justify-center bg-(--crm-bg)">
+    <div className="rounded-full border border-(--crm-line) bg-white px-5 py-3 text-sm font-semibold text-slate-500 shadow-sm">
+      Loading please wait😊...
     </div>
   </div>
 );
@@ -68,7 +68,7 @@ function App() {
         <Route
           element={
             <ProtectedRoute>
-              <AppShell />
+            <AppShell />
             </ProtectedRoute>
           }
         >
@@ -78,7 +78,7 @@ function App() {
           <Route path="/customers/:customerId" element={<CustomerProfilePage />} />
           <Route path="/customers/:customerId/edit" element={<EditCustomerPage />} />
           <Route
-            path="/admins"
+            path="/superadmins"
             element={
               <ProtectedRoute requiredRole="superadmin">
                 <SuperAdminPanel />

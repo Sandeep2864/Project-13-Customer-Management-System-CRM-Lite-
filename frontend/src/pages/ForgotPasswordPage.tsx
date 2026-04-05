@@ -100,11 +100,6 @@ const ForgotPasswordPage: React.FC = () => {
           Back to login
         </Link>
       </div>
-
-      <div className="mt-8 rounded-[24px] border border-white/12 bg-black/10 px-4 py-4 text-sm leading-7 text-white/60">
-        This page is ready for your backend reset endpoint and will show API
-        feedback automatically.
-      </div>
     </AuthScene>
   );
 };
