@@ -10,7 +10,7 @@ type FilterKey = "All" | CustomerStatus;
 type SortKey = "Newest" | "Oldest" | "Name";
 
 // CRITICAL: Ensure "InActive" matches your Backend/Types exactly
-const filters: FilterKey[] = ["All", "Lead", "Active", "InActive"];
+const filters: FilterKey[] = ["All", "Lead", "Active", "Inactive"];
 
 const SearchIcon = () => (
   <svg

@@ -29,13 +29,18 @@ const SuperAdminPanel: React.FC = () => {
   const [adminIdToDelete, setAdminIdToDelete] = useState<string | null>(null);
 
   // Stats logic synced with Sequelize "is_active" boolean
-  const stats = useMemo(() => ({
-    total: admins.length,
-    active: admins.filter((a) => a.is_active).length,
-    inactive: admins.filter((a) => !a.is_active).length,
-  }), [admins]);
+  const stats = useMemo(
+    () => ({
+      total: admins.length,
+      active: admins.filter((a) => a.is_active).length,
+      inactive: admins.filter((a) => !a.is_active).length,
+    }),
+    [admins],
+  );
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = event.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
   };
@@ -89,20 +94,56 @@ const SuperAdminPanel: React.FC = () => {
             className="reveal-card rounded-[28px] border border-white/80 bg-white/85 p-5 shadow-sm"
             style={{ ["--delay" as string]: `${0.08 * index}s` }}
           >
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">{label}</p>
-            <p className="mt-4 font-display text-4xl font-bold text-slate-900">{value}</p>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
+              {label}
+            </p>
+            <p className="mt-4 font-display text-4xl font-bold text-slate-900">
+              {value}
+            </p>
           </div>
         ))}
       </div>
 
       {/* Creation Form */}
       <section className="reveal-card rounded-[32px] border border-white/80 bg-white/85 p-6 shadow-sm backdrop-blur-xl">
-        <h2 className="font-display text-2xl font-bold text-slate-900">Create Admin</h2>
-        <form onSubmit={handleCreateAdmin} className="mt-5 grid gap-4 lg:grid-cols-4">
-          <input name="name" value={formValues.name} onChange={handleChange} placeholder="Full Name" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-400" required />
-          <input name="email" type="email" value={formValues.email} onChange={handleChange} placeholder="email@company.com" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-400" required />
-          <input name="password" type="password" value={formValues.password} onChange={handleChange} placeholder="Password" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-400" required />
-          <button type="submit" disabled={submitting} className="crm-cta rounded-2xl font-semibold text-white shadow-lg disabled:opacity-50">
+        <h2 className="font-display text-2xl font-bold text-slate-900">
+          Create Admin
+        </h2>
+        <form
+          onSubmit={handleCreateAdmin}
+          className="mt-5 grid gap-4 lg:grid-cols-4"
+        >
+          <input
+            name="name"
+            value={formValues.name}
+            onChange={handleChange}
+            placeholder="Full Name"
+            className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-400"
+            required
+          />
+          <input
+            name="email"
+            type="email"
+            value={formValues.email}
+            onChange={handleChange}
+            placeholder="email@company.com"
+            className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-400"
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            value={formValues.password}
+            onChange={handleChange}
+            placeholder="Password"
+            className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-emerald-400"
+            required
+          />
+          <button
+            type="submit"
+            disabled={submitting}
+            className="crm-cta rounded-2xl font-semibold text-white shadow-lg disabled:opacity-50"
+          >
             {submitting ? "Processing..." : "Create Admin"}
           </button>
         </form>
@@ -120,22 +161,31 @@ const SuperAdminPanel: React.FC = () => {
 
         <div className="divide-y divide-slate-50">
           {adminsLoading ? (
-            <div className="px-6 py-16 text-center text-slate-500 font-display text-xl">Loading accounts...</div>
+            <div className="px-6 py-16 text-center text-slate-500 font-display text-xl">
+              Loading accounts...
+            </div>
           ) : (
             admins.map((admin) => (
-              <div key={admin.id} className="grid gap-4 px-6 py-5 text-sm text-slate-600 hover:bg-slate-50/50 lg:grid-cols-[1.2fr_1fr_0.8fr_0.8fr_1fr] lg:items-center">
+              <div
+                key={admin.id}
+                className="grid gap-4 px-6 py-5 text-sm text-slate-600 hover:bg-slate-50/50 lg:grid-cols-[1.2fr_1fr_0.8fr_0.8fr_1fr] lg:items-center"
+              >
                 <div>
                   <p className="font-semibold text-slate-900">{admin.name}</p>
                   <p className="mt-1 text-[10px] uppercase tracking-widest text-slate-400">
-                    ID: {admin.id} • Joined {new Date(admin.created_at).toLocaleDateString()}
+                    ID: {admin.id} • Joined{" "}
+                    {new Date(admin.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <p className="truncate">{admin.email}</p>
-                <StatusBadge label={admin.role} tone={admin.role === "superadmin" ? "info" : "neutral"} />
-                
-                <StatusBadge 
-                  label={admin.is_active ? "Active" : "Inactive"} 
-                  tone={admin.is_active ? "active" : "inactive"} 
+                <StatusBadge
+                  label={admin.role}
+                  tone={admin.role === "superadmin" ? "info" : "neutral"}
+                />
+
+                <StatusBadge
+                  label={admin.is_active ? "Active" : "Inactive"}
+                  tone={admin.is_active ? "active" : "inactive"}
                 />
 
                 <div className="flex gap-2">
@@ -143,7 +193,14 @@ const SuperAdminPanel: React.FC = () => {
                     onClick={() => {
                       clearAdminError();
                       toggleAdminStatus(admin.id).then((res) => {
-                        if (res) showToast({ tone: "success", title: "Status Updated", description: `${res.name} is now ${res.is_active ? 'active' : 'deactivated'}.` });
+                        // res now contains 'name' from the updated backend
+                        if (res) {
+                          showToast({
+                            tone: "success",
+                            title: "Status Updated",
+                            description: `${res.name} is now ${res.is_active ? "active" : "deactivated"}.`,
+                          });
+                        }
                       });
                     }}
                     className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold hover:bg-white transition-colors"
@@ -163,7 +220,9 @@ const SuperAdminPanel: React.FC = () => {
             ))
           )}
           {!adminsLoading && admins.length === 0 && (
-            <div className="py-20 text-center text-slate-400">No administrators found.</div>
+            <div className="py-20 text-center text-slate-400">
+              No administrators found.
+            </div>
           )}
         </div>
       </section>
@@ -179,7 +238,9 @@ const SuperAdminPanel: React.FC = () => {
             await deleteAdmin(adminIdToDelete);
             showToast({ tone: "success", title: "Admin Removed" });
             setAdminIdToDelete(null);
-          } catch (e) { /* Error handled by context */ }
+          } catch (e) {
+            /* Error handled by context */
+          }
         }}
       />
     </section>
