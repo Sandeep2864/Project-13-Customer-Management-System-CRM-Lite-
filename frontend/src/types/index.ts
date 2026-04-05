@@ -1,6 +1,6 @@
 export type UserRole = "admin" | "superadmin";
 export type AdminStatus = "Active" | "Pending" | "Suspended";
-export type CustomerStatus = "Lead" | "Active" | "InActive";
+export type CustomerStatus = "Lead" | "Active" | "Inactive";
 
 export interface Customer { 
   id: string;

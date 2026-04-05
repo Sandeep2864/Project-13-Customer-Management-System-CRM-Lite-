@@ -131,7 +131,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             >
               <option value="Lead">Lead</option>
               <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              {/* UPDATED: Capital 'A' to match your Backend data "InActive" */}
+              <option value="InActive">InActive</option>
             </select>
           </label>
         </div>
@@ -143,7 +144,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             value={values.notes ?? ""}
             onChange={onChange}
             rows={5}
-            placeholder="Add context about this customer, recent conversations, or next steps."
+            placeholder="Add context about this customer..."
             className="w-full rounded-[24px] border border-[var(--crm-line)] bg-white px-4 py-3 text-slate-700 outline-none transition focus:border-emerald-200 focus:shadow-[0_0_0_4px_rgba(70,198,153,0.08)]"
           />
         </label>

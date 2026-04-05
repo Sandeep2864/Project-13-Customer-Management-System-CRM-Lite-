@@ -9,6 +9,7 @@ import type { Customer, CustomerStatus } from "../types";
 type FilterKey = "All" | CustomerStatus;
 type SortKey = "Newest" | "Oldest" | "Name";
 
+// CRITICAL: Ensure "InActive" matches your Backend/Types exactly
 const filters: FilterKey[] = ["All", "Lead", "Active", "InActive"];
 
 const SearchIcon = () => (
@@ -28,28 +29,19 @@ const SearchIcon = () => (
 );
 
 const getTone = (status: CustomerStatus) => {
-  if (status === "Active") {
-    return "active";
-  }
-
-  if (status === "Lead") {
-    return "lead";
-  }
-
-  return "inactive";
+  if (status === "Active") return "active";
+  if (status === "Lead") return "lead";
+  return "inactive"; // This is the CSS tone, keep lowercase
 };
 
 const sortCustomers = (customers: Customer[], sortKey: SortKey) => {
   const nextCustomers = [...customers];
-
   if (sortKey === "Name") {
     return nextCustomers.sort((left, right) => left.name.localeCompare(right.name));
   }
-
   return nextCustomers.sort((left, right) => {
     const leftTime = new Date(left.created_at).getTime();
     const rightTime = new Date(right.created_at).getTime();
-
     return sortKey === "Newest" ? rightTime - leftTime : leftTime - rightTime;
   });
 };
@@ -63,6 +55,7 @@ const CustomerTablePage: React.FC = () => {
     clearCustomerError,
   } = useCRM();
   const { showToast } = useToast();
+
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All");
   const [sortBy, setSortBy] = useState<SortKey>("Newest");
@@ -73,8 +66,8 @@ const CustomerTablePage: React.FC = () => {
     const normalizedSearch = search.trim().toLowerCase();
 
     const matchingCustomers = customers.filter((customer) => {
-      const matchesFilter =
-        activeFilter === "All" || customer.status === activeFilter;
+      // Direct comparison check
+      const matchesFilter = activeFilter === "All" || customer.status === activeFilter;
 
       const matchesSearch =
         normalizedSearch.length === 0 ||
@@ -108,46 +101,41 @@ const CustomerTablePage: React.FC = () => {
         </Link>
       </div>
 
-      {customerError ? (
+      {customerError && (
         <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-700">
           {customerError}
         </div>
-      ) : null}
+      )}
 
+      {/* Filter and Search Bar */}
       <div className="reveal-card dashboard-panel flex flex-col gap-4 rounded-[30px] border border-white/80 bg-white/82 p-4 shadow-[0_18px_50px_rgba(15,23,42,0.06)] backdrop-blur-xl">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-wrap gap-2 rounded-[22px] bg-[linear-gradient(180deg,#f8fbf9,#eef5f1)] p-2 shadow-[inset_0_1px_2px_rgba(15,23,42,0.05)]">
-            {filters.map((filter) => {
-              const isActive = filter === activeFilter;
-
-              return (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-2xl px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] transition ${
-                    isActive
-                      ? "bg-white text-[var(--crm-accent-dark)] shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
-                      : "text-slate-500 hover:-translate-y-0.5 hover:text-slate-700"
-                  }`}
-                >
-                  {filter}
-                </button>
-              );
-            })}
+            {filters.map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => setActiveFilter(filter)}
+                className={`rounded-2xl px-5 py-3 text-xs font-bold uppercase tracking-[0.18em] transition ${
+                  filter === activeFilter
+                    ? "bg-white text-[var(--crm-accent-dark)] shadow-[0_10px_24px_rgba(15,23,42,0.08)]"
+                    : "text-slate-500 hover:-translate-y-0.5 hover:text-slate-700"
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <label className="group flex min-w-0 items-center gap-3 rounded-[22px] border border-white/90 bg-white px-4 py-3 text-slate-400 shadow-[0_12px_30px_rgba(15,23,42,0.05)] transition focus-within:-translate-y-0.5 focus-within:border-emerald-200 focus-within:shadow-[0_18px_40px_rgba(70,198,153,0.12)]">
-              <div className="transition group-focus-within:text-[var(--crm-accent-dark)]">
-                <SearchIcon />
-              </div>
+            <label className="group flex min-w-0 items-center gap-3 rounded-[22px] border border-white/90 bg-white px-4 py-3 text-slate-400 shadow-[0_12px_30px_rgba(15,23,42,0.05)] transition focus-within:-translate-y-0.5 focus-within:border-emerald-200">
+              <SearchIcon />
               <input
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search customers..."
-                className="w-full min-w-[220px] bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+                className="w-full min-w-[220px] bg-transparent text-sm text-slate-700 outline-none"
               />
             </label>
 
@@ -164,6 +152,7 @@ const CustomerTablePage: React.FC = () => {
         </div>
       </div>
 
+      {/* Main Content Area */}
       <section className="reveal-card overflow-hidden rounded-[32px] border border-white/80 bg-white/85 shadow-[0_22px_60px_rgba(15,23,42,0.07)] backdrop-blur-xl">
         <div className="grid grid-cols-[1.2fr_1fr_1.1fr_0.8fr_1.1fr] gap-4 border-b border-[var(--crm-line)] px-6 py-5 text-[11px] font-bold uppercase tracking-[0.22em] text-slate-400 max-lg:hidden">
           <span>Name</span>
@@ -175,14 +164,12 @@ const CustomerTablePage: React.FC = () => {
 
         <div className="divide-y divide-[var(--crm-line)]">
           {customersLoading ? (
-            <div className="px-6 py-16 text-center">
-              <p className="font-display text-3xl font-bold text-slate-900">
+            <div className="px-6 py-20 text-center">
+              <p className="font-display text-3xl font-bold text-slate-900 animate-pulse">
                 Loading customers...
               </p>
             </div>
-          ) : null}
-
-          {!customersLoading &&
+          ) : filteredCustomers.length > 0 ? (
             filteredCustomers.map((customer) => (
               <div
                 key={customer.id}
@@ -196,89 +183,60 @@ const CustomerTablePage: React.FC = () => {
                 </div>
                 <p>{customer.company}</p>
                 <p>{customer.email}</p>
-                <StatusBadge
-                  label={customer.status}
-                  tone={getTone(customer.status)}
-                />
+                <StatusBadge label={customer.status} tone={getTone(customer.status)} />
                 <div className="flex flex-wrap gap-3">
-                  <Link
-                    to={`/customers/${customer.id}`}
-                    className="rounded-full border border-[var(--crm-line)] bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
-                  >
-                    View
-                  </Link>
-                  <Link
-                    to={`/customers/${customer.id}/edit`}
-                    className="rounded-full border border-[var(--crm-line)] bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
-                  >
-                    Edit
-                  </Link>
+                  <Link to={`/customers/${customer.id}`} className="rounded-full border px-4 py-2 text-xs font-semibold">View</Link>
+                  <Link to={`/customers/${customer.id}/edit`} className="rounded-full border px-4 py-2 text-xs font-semibold">Edit</Link>
                   <button
                     type="button"
                     onClick={() => setCustomerIdToDelete(customer.id)}
-                    className="rounded-full border border-rose-100 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
+                    className="rounded-full border border-rose-100 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600"
                   >
                     Delete
                   </button>
                 </div>
               </div>
-            ))}
-
-          {!customersLoading && filteredCustomers.length === 0 ? (
-            <div className="px-6 py-16 text-center">
-              <p className="font-display text-3xl font-bold text-slate-900">
+            ))
+          ) : (
+            // EMPTY STATE: Shown when loading is done but no matching results exist
+            <div className="flex flex-col items-center justify-center px-6 py-24 text-center">
+              <div className="mb-6 rounded-full bg-slate-50 p-6 text-slate-300">
+                <SearchIcon />
+              </div>
+              <h3 className="font-display text-3xl font-bold text-slate-900">
                 No customers found
+              </h3>
+              <p className="mt-3 max-w-xs text-sm leading-relaxed text-slate-500">
+                We couldn't find any records matching your current filter or search.
               </p>
-              <p className="mt-3 text-sm text-slate-500">
-                There are no customer records matching the current filters yet.
-              </p>
+              <button
+                onClick={() => { setSearch(""); setActiveFilter("All"); }}
+                className="mt-8 rounded-full border border-emerald-200 bg-white px-6 py-3 text-xs font-bold uppercase tracking-widest text-emerald-600 transition hover:bg-emerald-50"
+              >
+                Reset all filters
+              </button>
             </div>
-          ) : null}
+          )}
         </div>
       </section>
 
       <ConfirModal
         open={Boolean(customerIdToDelete)}
         title="Delete this customer?"
-        message="This will permanently remove the customer record from your CRM workspace."
+        message="This action is permanent and cannot be undone."
         confirmLabel={submitting ? "Deleting..." : "Delete"}
-        onCancel={() => {
-          if (!submitting) {
-            setCustomerIdToDelete(null);
-          }
-        }}
+        onCancel={() => !submitting && setCustomerIdToDelete(null)}
         onConfirm={() => {
-          if (!customerIdToDelete) {
-            return;
-          }
-
+          if (!customerIdToDelete) return;
           setSubmitting(true);
           clearCustomerError();
-          const customerName =
-            customers.find((customer) => customer.id === customerIdToDelete)?.name ??
-            "Customer";
-          void deleteCustomer(customerIdToDelete)
+          deleteCustomer(customerIdToDelete)
             .then(() => {
-              showToast({
-                tone: "success",
-                title: "Customer deleted.",
-                description: `${customerName} has been removed from the workspace.`,
-              });
+              showToast({ tone: "success", title: "Customer deleted." });
               setCustomerIdToDelete(null);
             })
-            .catch((deleteError) => {
-              showToast({
-                tone: "error",
-                title: "Delete failed.",
-                description:
-                  deleteError instanceof Error
-                    ? deleteError.message
-                    : "Customer could not be deleted right now.",
-              });
-            })
-            .finally(() => {
-              setSubmitting(false);
-            });
+            .catch(() => showToast({ tone: "error", title: "Delete failed." }))
+            .finally(() => setSubmitting(false));
         }}
       />
     </section>
