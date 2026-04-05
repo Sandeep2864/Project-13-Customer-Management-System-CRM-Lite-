@@ -123,7 +123,7 @@ const CustomerProfilePage: React.FC = () => {
             Back to Customers
           </Link>
           <Link
-            to={`/customers/${customer._id}/edit`}
+            to={`/customers/${customer.id}/edit`}
             className="crm-cta rounded-full px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_35px_rgba(70,198,153,0.22)]"
           >
             Edit Profile
@@ -139,7 +139,7 @@ const CustomerProfilePage: React.FC = () => {
                 Account Summary
               </h2>
               <p className="mt-2 text-sm text-slate-500">
-                Created on {new Date(customer.createdAt).toLocaleDateString()}
+                Created on {new Date(customer.created_at).toLocaleDateString()}
               </p>
             </div>
             <StatusBadge

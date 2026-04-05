@@ -6,7 +6,6 @@ export const loginUser = async (email: string, password: string) => {
     email,
     password,
   });
-
   return response.data;
 };
 
@@ -19,6 +18,10 @@ export const logoutUser = async () => {
   await axiosInstance.post("/api/auth/logout");
 };
 
+/**
+ * Add this function to fix the Uncaught SyntaxError
+ */
 export const requestPasswordReset = async (email: string) => {
-  await axiosInstance.post("/api/auth/forgot-password", { email });
+  const response = await axiosInstance.post("/api/auth/forgot-password", { email });
+  return response.data;
 };

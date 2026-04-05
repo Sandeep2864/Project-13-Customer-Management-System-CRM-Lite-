@@ -9,7 +9,7 @@ import type { Customer, CustomerStatus } from "../types";
 type FilterKey = "All" | CustomerStatus;
 type SortKey = "Newest" | "Oldest" | "Name";
 
-const filters: FilterKey[] = ["All", "Lead", "Active", "Inactive"];
+const filters: FilterKey[] = ["All", "Lead", "Active", "InActive"];
 
 const SearchIcon = () => (
   <svg
@@ -47,8 +47,8 @@ const sortCustomers = (customers: Customer[], sortKey: SortKey) => {
   }
 
   return nextCustomers.sort((left, right) => {
-    const leftTime = new Date(left.createdAt).getTime();
-    const rightTime = new Date(right.createdAt).getTime();
+    const leftTime = new Date(left.created_at).getTime();
+    const rightTime = new Date(right.created_at).getTime();
 
     return sortKey === "Newest" ? rightTime - leftTime : leftTime - rightTime;
   });
@@ -185,7 +185,7 @@ const CustomerTablePage: React.FC = () => {
           {!customersLoading &&
             filteredCustomers.map((customer) => (
               <div
-                key={customer._id}
+                key={customer.id}
                 className="grid gap-4 px-6 py-5 text-sm text-slate-600 transition hover:bg-emerald-50/30 max-lg:grid-cols-1 lg:grid-cols-[1.2fr_1fr_1.1fr_0.8fr_1.1fr] lg:items-center"
               >
                 <div>
@@ -202,20 +202,20 @@ const CustomerTablePage: React.FC = () => {
                 />
                 <div className="flex flex-wrap gap-3">
                   <Link
-                    to={`/customers/${customer._id}`}
+                    to={`/customers/${customer.id}`}
                     className="rounded-full border border-[var(--crm-line)] bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                   >
                     View
                   </Link>
                   <Link
-                    to={`/customers/${customer._id}/edit`}
+                    to={`/customers/${customer.id}/edit`}
                     className="rounded-full border border-[var(--crm-line)] bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-sky-200 hover:bg-sky-50 hover:text-sky-700"
                   >
                     Edit
                   </Link>
                   <button
                     type="button"
-                    onClick={() => setCustomerIdToDelete(customer._id)}
+                    onClick={() => setCustomerIdToDelete(customer.id)}
                     className="rounded-full border border-rose-100 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
                   >
                     Delete
@@ -255,7 +255,7 @@ const CustomerTablePage: React.FC = () => {
           setSubmitting(true);
           clearCustomerError();
           const customerName =
-            customers.find((customer) => customer._id === customerIdToDelete)?.name ??
+            customers.find((customer) => customer.id === customerIdToDelete)?.name ??
             "Customer";
           void deleteCustomer(customerIdToDelete)
             .then(() => {

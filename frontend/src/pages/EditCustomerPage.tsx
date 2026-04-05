@@ -129,7 +129,7 @@ const EditCustomerPage: React.FC = () => {
           title: "Customer updated.",
           description: `${updatedCustomer.name} has been updated successfully.`,
         });
-        navigate(`/customers/${updatedCustomer._id}`);
+        navigate(`/customers/${updatedCustomer.id}`);
       }
     } catch (submitError) {
       const message =
@@ -153,7 +153,7 @@ const EditCustomerPage: React.FC = () => {
       secondaryAction={
         <button
           type="button"
-          onClick={() => navigate(`/customers/${customer._id}`)}
+          onClick={() => navigate(`/customers/${customer.id}`)}
           className="rounded-full border border-[var(--crm-line)] bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
         >
           Cancel

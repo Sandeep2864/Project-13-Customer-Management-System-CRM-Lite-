@@ -25,7 +25,6 @@ const getApiErrorMessage = (error: unknown, fallback: string) => {
   if (isAxiosError(error)) {
     return error.response?.data?.message ?? fallback;
   }
-
   return fallback;
 };
 
@@ -54,10 +53,7 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       setCustomers([]);
       setCustomerError(
-        getApiErrorMessage(
-          error,
-          "Customers could not be loaded right now."
-        )
+        getApiErrorMessage(error, "Customers could not be loaded."),
       );
       return [];
     } finally {
@@ -81,10 +77,7 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       setAdmins([]);
       setAdminError(
-        getApiErrorMessage(
-          error,
-          "Admin accounts could not be loaded right now."
-        )
+        getApiErrorMessage(error, "Admin accounts could not be loaded."),
       );
       return [];
     } finally {
@@ -114,43 +107,36 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
   const addCustomer = async (input: CustomerInput) => {
     try {
       const nextCustomer = await createCustomerRequest(input);
-      setCustomers((currentCustomers) => [nextCustomer, ...currentCustomers]);
+      setCustomers((current) => [nextCustomer, ...current]);
       return nextCustomer;
     } catch (error) {
-      setCustomerError(
-        getApiErrorMessage(error, "Customer could not be created right now.")
-      );
+      setCustomerError(getApiErrorMessage(error, "Failed to create customer."));
       throw error;
     }
   };
 
-  const updateCustomer = async (customerId: string, input: CustomerInput) => {
+  const updateCustomer = async (
+    customerId: string | number,
+    input: CustomerInput,
+  ) => {
     try {
-      const updatedCustomer = await updateCustomerRequest(customerId, input);
-      setCustomers((currentCustomers) =>
-        currentCustomers.map((customer) =>
-          customer._id === customerId ? updatedCustomer : customer
-        )
+      const updated = await updateCustomerRequest(String(customerId), input);
+      setCustomers((current) =>
+        current.map((c) => (c.id == customerId ? updated : c)),
       );
-      return updatedCustomer;
+      return updated;
     } catch (error) {
-      setCustomerError(
-        getApiErrorMessage(error, "Customer could not be updated right now.")
-      );
+      setCustomerError(getApiErrorMessage(error, "Failed to update customer."));
       throw error;
     }
   };
 
-  const deleteCustomer = async (customerId: string) => {
+  const deleteCustomer = async (customerId: string | number) => {
     try {
-      await removeCustomer(customerId);
-      setCustomers((currentCustomers) =>
-        currentCustomers.filter((customer) => customer._id !== customerId)
-      );
+      await removeCustomer(String(customerId));
+      setCustomers((current) => current.filter((c) => c.id != customerId));
     } catch (error) {
-      setCustomerError(
-        getApiErrorMessage(error, "Customer could not be deleted right now.")
-      );
+      setCustomerError(getApiErrorMessage(error, "Failed to delete customer."));
       throw error;
     }
   };
@@ -158,49 +144,41 @@ export const CRMProvider = ({ children }: { children: React.ReactNode }) => {
   const createAdmin = async (input: AdminUserInput) => {
     try {
       const nextAdmin = await createAdminRequest(input);
-      setAdmins((currentAdmins) => [nextAdmin, ...currentAdmins]);
+      setAdmins((current) => [nextAdmin, ...current]);
       return nextAdmin;
     } catch (error) {
-      setAdminError(
-        getApiErrorMessage(error, "Admin account could not be created right now.")
-      );
+      setAdminError(getApiErrorMessage(error, "Failed to create admin."));
       throw error;
     }
   };
 
-  const toggleAdminStatus = async (adminId: string) => {
+  const toggleAdminStatus = async (adminId: string | number) => {
     try {
-      const updatedAdmin = await toggleAdmin(adminId);
-      setAdmins((currentAdmins) =>
-        currentAdmins.map((admin) =>
-          admin._id === adminId ? updatedAdmin : admin
-        )
+      const updatedAdmin = await toggleAdmin(String(adminId));
+      setAdmins((current) =>
+        current.map((a) => (a.id == adminId ? updatedAdmin : a)),
       );
       return updatedAdmin;
     } catch (error) {
       setAdminError(
-        getApiErrorMessage(error, "Admin status could not be updated right now.")
+        getApiErrorMessage(error, "Failed to update admin status."),
       );
       throw error;
     }
   };
 
-  const deleteAdmin = async (adminId: string) => {
+  const deleteAdmin = async (adminId: string | number) => {
     try {
-      await removeAdmin(adminId);
-      setAdmins((currentAdmins) =>
-        currentAdmins.filter((admin) => admin._id !== adminId)
-      );
+      await removeAdmin(String(adminId));
+      setAdmins((current) => current.filter((a) => a.id != adminId));
     } catch (error) {
-      setAdminError(
-        getApiErrorMessage(error, "Admin account could not be deleted right now.")
-      );
+      setAdminError(getApiErrorMessage(error, "Failed to delete admin."));
       throw error;
     }
   };
 
-  const getCustomerById = (customerId: string) =>
-    customers.find((customer) => customer._id === customerId);
+  const getCustomerById = (customerId: string | number) =>
+    customers.find((c) => c.id == customerId);
 
   return (
     <CRMContext.Provider
