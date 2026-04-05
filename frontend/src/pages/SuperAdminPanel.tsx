@@ -66,10 +66,6 @@ const SuperAdminPanel: React.FC = () => {
           <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-slate-900">
             Create and manage admin accounts
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-500">
-            This page follows the guide: only SuperAdmins should access it, and
-            it supports creating, listing, toggling, and deleting admin accounts.
-          </p>
         </div>
       </div>
 
@@ -136,7 +132,7 @@ const SuperAdminPanel: React.FC = () => {
             disabled={submitting}
             className="crm-cta rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_35px_rgba(70,198,153,0.22)] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {submitting ? "Creating..." : "Create Admin"}
+            {submitting ? "Creating 🚀..." : "Create Admin"}
           </button>
         </form>
       </section>
