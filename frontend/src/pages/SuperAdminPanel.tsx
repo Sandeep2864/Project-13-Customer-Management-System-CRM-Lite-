@@ -233,7 +233,7 @@ const SuperAdminPanel: React.FC = () => {
                 No admin accounts loaded
               </p>
               <p className="mt-3 text-sm text-slate-500">
-                Connect the backend to populate this SuperAdmin management table.
+                No admin accounts are available yet.
               </p>
             </div>
           ) : null}

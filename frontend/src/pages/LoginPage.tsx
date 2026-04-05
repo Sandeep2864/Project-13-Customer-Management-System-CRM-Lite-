@@ -4,6 +4,12 @@ import BrandLogo from "../components/BrandLogo";
 import { useAuth } from "../hooks/useAuth";
 import { useToast } from "../hooks/useToast";
 
+const loginHighlights = [
+  ["MySQL", "Database connected"],
+  ["JWT", "Token auth ready"],
+  ["5000", "API on localhost"],
+] as const;
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, loading } = useAuth();
@@ -52,11 +58,7 @@ const LoginPage: React.FC = () => {
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {[
-              ["00", "Customers loaded"],
-              ["00", "Admins loaded"],
-              ["API", "Backend ready"],
-            ].map(([value, label], index) => (
+            {loginHighlights.map(([value, label], index) => (
               <div
                 key={label}
                 className="reveal-card rounded-[28px] border border-white/80 bg-white/80 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.06)] backdrop-blur"
@@ -145,8 +147,6 @@ const LoginPage: React.FC = () => {
                 {loading ? "Logging in..." : "Open Dashboard"}
               </button>
             </form>
-
-        
           </div>
         </section>
       </div>

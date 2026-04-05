@@ -92,7 +92,7 @@ const EditCustomerPage: React.FC = () => {
           Customer not available
         </h1>
         <p className="text-sm leading-7 text-slate-500">
-          Connect the backend and load customer data before editing this record.
+          This customer record could not be loaded for editing.
         </p>
         <button
           type="button"
