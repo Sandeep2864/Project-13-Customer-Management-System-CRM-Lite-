@@ -59,83 +59,91 @@ router.post("/", async (req: AuthRequest, res: Response): Promise<void> => {
   }
 });
 
+router.put("/:id", async (req: AuthRequest, res: Response): Promise<void> => {
+  const id = Number(req.params.id);
+  const { name, email } = req.body;
 
-router.put("/:id",async (req:AuthRequest,res:Response):Promise<void> => {
-  const id=Number(req.params.id);
-  const {name,email}=req.body;
-
-  if(isNaN(id)) {
-    res.status(400).json({message:"Invalid admin Id."});
+  if (isNaN(id)) {
+    res.status(400).json({ message: "Invalid admin Id." });
     return;
   }
 
-  const user=await User.findByPk(id, {
-    attributes:{exclude:["password"]},
+  const user = await User.findByPk(id, {
+    attributes: { exclude: ["password"] },
   });
 
-  if(!user) {
-    res.status(404).json({message:"Admin not found"});
+  if (!user) {
+    res.status(404).json({ message: "Admin not found" });
     return;
   }
   try {
-    const updated=await user.update({name,email});
+    const updated = await user.update({ name, email });
     res.status(200).json(updated);
-  }
-  catch(error) {
-    if(error instanceof UniqueConstraintError) {
-      res.status(409).json({message:"Email already in use."});
+  } catch (error) {
+    if (error instanceof UniqueConstraintError) {
+      res.status(409).json({ message: "Email already in use." });
       return;
     }
     throw error;
   }
 });
 
-//patch /api/users/:id/toggle
-router.patch("/:id/toggle",async (req:AuthRequest,res:Response):Promise<void> => {
-    const id=Number(req.params.id);
+// PATCH /api/users/:id/toggle
+router.patch(
+  "/:id/toggle",
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
 
-    if(isNaN(id)) {
-        res.status(400).json({message:"Invalid admin ID."});
-        return;
+    if (isNaN(id)) {
+      res.status(400).json({ message: "Invalid admin ID." });
+      return;
     }
 
-    const user=await User.findByPk(id);
+    const user = await User.findByPk(id);
 
-    if(!user) {
-        res.status(404).json({message:"Admin not found"});
-        return;
+    if (!user) {
+      res.status(404).json({ message: "Admin not found" });
+      return;
     }
 
-    await user.set("is_active",!user.is_active).save();
-    res.status(200).json({
-        message:`Admin ${user.is_active?"activated":"deactivated"} successfully.`,
-        is_active:user.is_active,
-    });
+    // 1. Toggle the status
+    user.is_active = !user.is_active;
+    await user.save();
 
-})
+    // 2. IMPORTANT: Reload the user to get all fields (email, created_at, etc.)
+    // This prevents the "missing data" issue on the frontend
+    await user.reload();
 
-  //delete /api/users/:id
-    router.delete("/:id",async (req:AuthRequest,res:Response): Promise<void> => {
-        const id=Number(req.params.id);
+    // 3. Return the FULL user object
+    res.status(200).json(user);
+  },
+);
 
-        if(isNaN(id)) {
-            res.status(400).json({message:"Invalid Admin Id"});
-            return;
-        }
+//delete /api/users/:id
+router.delete(
+  "/:id",
+  async (req: AuthRequest, res: Response): Promise<void> => {
+    const id = Number(req.params.id);
 
-        if(id===req.user?.id) {
-            res.status(400).json({message:"You can't delete yor account"})
-        }
+    if (isNaN(id)) {
+      res.status(400).json({ message: "Invalid Admin Id" });
+      return;
+    }
 
-        const user=await User.findByPk(id);
+    if (id === req.user?.id) {
+      res.status(400).json({ message: "You can't delete yor account" });
+    }
 
-        if(!user) {
-            res.status(404).json({message:"Admin not found"})
-            return;
-        }
+    const user = await User.findByPk(id);
 
-        await user.destroy();
-        res.status(200).json({message:'Admin deleted successfully.'})
-});
+    if (!user) {
+      res.status(404).json({ message: "Admin not found" });
+      return;
+    }
+
+    await user.destroy();
+    res.status(200).json({ message: "Admin deleted successfully." });
+  },
+);
 
 export default router;
