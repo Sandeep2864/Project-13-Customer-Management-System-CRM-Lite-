@@ -3,6 +3,11 @@ import { Router, Request, Response } from "express";
 import jwt, { SignOptions } from "jsonwebtoken";
 import { StringValue } from "ms";
 import User from "../models/User.js";
+
+import crypto from "crypto";
+import PasswordResetToken from "../models/PasswordResetToken.js";
+import { sendPasswordResetEmail } from "../utils/mailer.js";
+
 //middleware future for protection
 
 const router = Router();
@@ -68,5 +73,84 @@ router.get("/me",protect,async(req:AuthRequest,res:Response):Promise<void> => {
 router.post("/logout",protect,(_req:Request,res:Response):void => {
   res.status(200).json({message:"Logged out successfully."});
 });
+
+router.post("/forgot-password", async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  const user = await User.findByEmail(email);
+
+  // don't reveal if email exists (security)
+  if (!user) {
+    res.status(200).json({ message: "If email exists, reset link sent." });
+    return;
+  }
+
+  // 🔥 generate token
+  const token = crypto.randomBytes(32).toString("hex");
+
+  // 🔥 expiry = 10 minutes
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  // save in DB
+  await PasswordResetToken.create({
+    user_id: user.id,
+    token,
+    expires_at: expiresAt,
+  });
+
+  // send email
+  await sendPasswordResetEmail(user.email, user.name, token);
+
+  res.status(200).json({ message: "Reset link sent to email." });
+});
+
+
+router.get("/verify-reset-token", async (req: Request, res: Response) => {
+  const token = typeof req.query.token === "string" ? req.query.token : undefined;
+
+  if (!token) {
+    res.status(400).json({ valid: false });
+    return;
+  }
+
+  const record = await PasswordResetToken.findOne({ where: { token } });
+
+  if (!record || !record.isValid()) {
+    res.status(400).json({ valid: false });
+    return;
+  }
+
+  res.status(200).json({ valid: true });
+});
+
+router.post("/reset-password", async (req: Request, res: Response) => {
+  const { token, password } = req.body;
+
+  const record = await PasswordResetToken.findOne({ where: { token } });
+
+  if (!record || !record.isValid()) {
+    res.status(400).json({ message: "Invalid or expired token" });
+    return;
+  }
+
+  const user = await User.findByPk(record.user_id);
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  // 🔥 update password (bcrypt auto runs)
+  user.password = password;
+  await user.save();
+
+  // mark token used
+  record.used = true;
+  await record.save();
+
+  res.status(200).json({ message: "Password updated successfully" });
+});
+
+
 
 export default router;
