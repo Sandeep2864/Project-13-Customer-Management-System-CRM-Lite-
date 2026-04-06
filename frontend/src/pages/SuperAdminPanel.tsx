@@ -27,7 +27,7 @@ const SuperAdminPanel: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [adminIdToDelete, setAdminIdToDelete] = useState<string | null>(null);
   const activeAdmins = admins.filter((admin) => admin.status === "Active").length;
-  const pendingAdmins = admins.filter((admin) => admin.status === "Pending").length;
+  const pendingAdmins = admins.filter((admin) => admin.status === "Suspended").length;
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
