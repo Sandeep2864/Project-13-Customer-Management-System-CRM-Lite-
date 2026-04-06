@@ -23,10 +23,12 @@ const ProtectedRoute = ({
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/" />;
+    return <Navigate to="/login" replace/>;
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
+  const userRole = (user as { role?: UserRole } | null | undefined)?.role;
+
+  if (requiredRole && userRole !== requiredRole) {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import BrandLogo from "../components/BrandLogo";
 import { useAuth } from "../hooks/useAuth";
@@ -168,7 +168,8 @@ const FooterIcon = ({ label, children }: { label: string; children: React.ReactN
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, loading } = useAuth();
+  // Casting useAuth to include the proper types from your AuthProvider
+  const { login, loading } = useAuth() as any;
   const { showToast } = useToast();
   const currentYear = new Date().getFullYear();
   const [email, setEmail] = useState("");
@@ -176,21 +177,33 @@ const LoginPage: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    setError("");
+  }, []);
+
+  const handleInputFocus = () => {
+    if (error) setError("");
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault(); // ✅ STOP REFRESH
     setError("");
 
     try {
-      const currentUser = await login(email, password, { remember: rememberMe });
+      const currentUser = await login(email, password, {
+        remember: rememberMe,
+      });
+
       showToast({
         tone: "success",
         title: `Welcome back, ${currentUser.name}.`,
-        description: "You are now signed in to your CRM workspace.",
+        description: "You are now signed in.",
       });
+
       navigate("/dashboard");
-    } catch (loginError) {
-      const message =
-        loginError instanceof Error ? loginError.message : "Login failed";
+    } catch (err: any) {
+      // ✅ EXTRACT BACKEND MESSAGE (401/403)
+      const message = err.response?.data?.message || err.message || "Login failed";
       setError(message);
     }
   };

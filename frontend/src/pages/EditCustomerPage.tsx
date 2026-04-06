@@ -22,64 +22,61 @@ const EditCustomerPage: React.FC = () => {
   const { customerId } = useParams();
   const { getCustomerById, updateCustomer, clearCustomerError } = useCRM();
   const { showToast } = useToast();
+
   const existingCustomer = customerId ? getCustomerById(customerId) : undefined;
+  
   const [customer, setCustomer] = useState<Customer | null>(existingCustomer ?? null);
   const [values, setValues] = useState<CustomerInput | null>(
     existingCustomer ? mapCustomerToInput(existingCustomer) : null
   );
+  
   const [loading, setLoading] = useState(!existingCustomer && Boolean(customerId));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!customerId || existingCustomer) {
-      return;
+    // If we already have the customer from the local cache, make sure values are set
+    if (existingCustomer && !values) {
+        setValues(mapCustomerToInput(existingCustomer));
+        return;
     }
 
-    let ignore = false;
+    if (!customerId || existingCustomer) return;
 
+    let ignore = false;
     const loadCustomer = async () => {
       setLoading(true);
-
       try {
         const response = await getCustomer(customerId);
-
         if (!ignore) {
           setCustomer(response);
+          // This ensures the form fields (including status) fill with Backend data
           setValues(mapCustomerToInput(response));
         }
       } catch (loadError) {
         if (!ignore) {
           setError(
             isAxiosError(loadError)
-              ? loadError.response?.data?.message ??
-                  "Customer could not be loaded from the backend."
-              : "Customer could not be loaded from the backend."
+              ? loadError.response?.data?.message ?? "Failed to load customer."
+              : "Failed to load customer."
           );
         }
       } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
+        if (!ignore) setLoading(false);
       }
     };
 
     void loadCustomer();
-
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, [customerId, existingCustomer]);
 
-  if (!customerId) {
-    return <Navigate to="/customers" replace />;
-  }
+  if (!customerId) return <Navigate to="/customers" replace />;
 
   if (loading) {
     return (
       <section className="flex min-h-[300px] items-center justify-center">
         <div className="rounded-full border border-[var(--crm-line)] bg-white px-5 py-3 text-sm font-semibold text-slate-500 shadow-sm">
-          Loading customer...
+          Loading customer details...
         </div>
       </section>
     );
@@ -88,17 +85,8 @@ const EditCustomerPage: React.FC = () => {
   if (!customer || !values) {
     return (
       <section className="flex flex-col gap-4 rounded-[32px] border border-white/80 bg-white/85 p-8 shadow-[0_22px_60px_rgba(15,23,42,0.07)]">
-        <h1 className="font-display text-3xl font-bold text-slate-900">
-          Customer not available
-        </h1>
-        <p className="text-sm leading-7 text-slate-500">
-          This customer record could not be loaded for editing.
-        </p>
-        <button
-          type="button"
-          onClick={() => navigate("/customers")}
-          className="w-fit rounded-full border border-[var(--crm-line)] bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
-        >
+        <h1 className="font-display text-3xl font-bold text-slate-900">Customer not available</h1>
+        <button onClick={() => navigate("/customers")} className="w-fit rounded-full border px-5 py-3 text-sm font-semibold text-slate-700">
           Back to Customers
         </button>
       </section>
@@ -122,21 +110,16 @@ const EditCustomerPage: React.FC = () => {
 
     try {
       const updatedCustomer = await updateCustomer(customerId, values);
-
       if (updatedCustomer) {
         showToast({
           tone: "success",
           title: "Customer updated.",
           description: `${updatedCustomer.name} has been updated successfully.`,
         });
-        navigate(`/customers/${updatedCustomer._id}`);
+        navigate(`/customers/${updatedCustomer.id}`);
       }
     } catch (submitError) {
-      const message =
-        submitError instanceof Error
-          ? submitError.message
-          : "Customer could not be updated right now.";
-      setError(message);
+      setError(submitError instanceof Error ? submitError.message : "Update failed.");
     } finally {
       setSubmitting(false);
     }
@@ -145,7 +128,7 @@ const EditCustomerPage: React.FC = () => {
   return (
     <CustomerForm
       title={`Edit ${customer.name}`}
-      description="Update customer details, account state, and notes without leaving the shared workspace."
+      description="Update status, details, and notes."
       submitLabel="Update Customer"
       values={values}
       isSubmitting={submitting}
@@ -153,8 +136,8 @@ const EditCustomerPage: React.FC = () => {
       secondaryAction={
         <button
           type="button"
-          onClick={() => navigate(`/customers/${customer._id}`)}
-          className="rounded-full border border-[var(--crm-line)] bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300"
+          onClick={() => navigate(`/customers/${customer.id}`)}
+          className="rounded-full border border-[var(--crm-line)] bg-white px-6 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50"
         >
           Cancel
         </button>

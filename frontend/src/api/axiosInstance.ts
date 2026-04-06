@@ -1,19 +1,19 @@
 import axios from "axios";
-import { getStoredToken } from "../utils/authStorage";
-
-const configuredBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
 
 const axiosInstance = axios.create({
-  baseURL: configuredBaseUrl && configuredBaseUrl.length > 0
-    ? configuredBaseUrl
-    : "http://localhost:5000",
+  baseURL: "http://localhost:5000",
+  withCredentials: true,
 });
 
+// 🔥 Attach token automatically
 axiosInstance.interceptors.request.use((config) => {
-  const token = getStoredToken();
+  const stored = localStorage.getItem("crm_session");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (stored) {
+    const { token } = JSON.parse(stored);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   return config;

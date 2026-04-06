@@ -34,7 +34,7 @@ const AddCustomerPage: React.FC = () => {
         title: "Customer created.",
         description: `${nextCustomer.name} is now part of your CRM pipeline.`,
       });
-      navigate(`/customers/${nextCustomer._id}`);
+      navigate(`/customers/${nextCustomer.id}`);
     } catch (submitError) {
       const message =
         submitError instanceof Error

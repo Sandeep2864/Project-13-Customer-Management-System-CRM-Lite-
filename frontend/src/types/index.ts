@@ -1,17 +1,19 @@
-export type CustomerStatus = 'Lead' | 'Active' | 'Inactive';
-export type UserRole = 'admin' | 'superadmin';
-export type AdminStatus = 'Active' | 'Pending' | 'Suspended';
+export type UserRole = "admin" | "superadmin";
+export type AdminStatus = "Active" | "Pending" | "Suspended";
+export type CustomerStatus = "Lead" | "Active" | "Inactive";
 
-export interface Customer {
-  _id: string;
+export interface Customer { 
+  id: string;
   name: string;
   company: string;
   email: string;
   phone: string;
   city: string;
   status: CustomerStatus;
+  is_active: boolean; 
   notes?: string;
-  createdAt: string;
+  created_at: string; 
+  updated_at: string; 
 }
 
 export interface CustomerInput {
@@ -25,49 +27,36 @@ export interface CustomerInput {
 }
 
 export interface AdminUser {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   role: UserRole;
-  isActive: boolean;
-  status: AdminStatus;
-  createdAt: string;
+  status: AdminStatus; // Added to match SuperAdminPanel logic
+  is_active: boolean; 
+  created_at: string; 
+  updated_at: string; 
 }
 
 export interface AdminUserInput {
   name: string;
   email: string;
-  password: string;
-  role: Extract<UserRole, 'admin'>;
+  password?: string; // Optional for updates, required for creation
+  role: UserRole;
 }
 
+// Ensure AuthUser matches what the login API sends back
 export interface AuthUser {
-  _id: string;
+  id: string;
   name: string;
   email: string;
   role: UserRole;
 }
 
+/** * Added LoginResponse to fix the import error in authApi.ts
+ */
 export interface LoginResponse {
-  token: string;
   user: AuthUser;
-}
-
-export interface LoginOptions {
-  remember?: boolean;
-}
-
-export interface AuthContextType {
-  user: AuthUser | null;
-  token: string | null;
-  isAuthenticated: boolean;
-  login: (
-    email: string,
-    password: string,
-    options?: LoginOptions
-  ) => Promise<AuthUser>;
-  logout: () => void;
-  loading: boolean;
+  token: string;
 }
 
 export interface CRMContextType {
@@ -80,7 +69,10 @@ export interface CRMContextType {
   fetchCustomers: () => Promise<Customer[]>;
   fetchAdmins: () => Promise<AdminUser[]>;
   addCustomer: (input: CustomerInput) => Promise<Customer>;
-  updateCustomer: (customerId: string, input: CustomerInput) => Promise<Customer | null>;
+  updateCustomer: (
+    customerId: string,
+    input: CustomerInput,
+  ) => Promise<Customer | null>;
   deleteCustomer: (customerId: string) => Promise<void>;
   getCustomerById: (customerId: string) => Customer | undefined;
   createAdmin: (input: AdminUserInput) => Promise<AdminUser>;

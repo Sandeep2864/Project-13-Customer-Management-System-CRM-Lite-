@@ -6,7 +6,6 @@ export const loginUser = async (email: string, password: string) => {
     email,
     password,
   });
-
   return response.data;
 };
 
@@ -20,5 +19,6 @@ export const logoutUser = async () => {
 };
 
 export const requestPasswordReset = async (email: string) => {
-  await axiosInstance.post("/api/auth/forgot-password", { email });
+  const response = await axiosInstance.post("/api/auth/forgot-password", { email });
+  return response.data;
 };

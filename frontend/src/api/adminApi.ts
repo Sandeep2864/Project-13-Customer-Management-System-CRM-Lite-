@@ -11,13 +11,14 @@ export const createAdmin = async (input: AdminUserInput) => {
   return response.data;
 };
 
-export const toggleAdmin = async (adminId: string) => {
+// Updated to accept string or number for Sequelize IDs
+export const toggleAdmin = async (adminId: string | number) => {
   const response = await axiosInstance.patch<AdminUser>(
     `/api/users/${adminId}/toggle`
   );
   return response.data;
 };
 
-export const removeAdmin = async (adminId: string) => {
+export const removeAdmin = async (adminId: string | number) => {
   await axiosInstance.delete(`/api/users/${adminId}`);
 };

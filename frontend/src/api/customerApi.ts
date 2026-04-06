@@ -6,7 +6,7 @@ export const getCustomers = async () => {
   return response.data;
 };
 
-export const getCustomer = async (customerId: string) => {
+export const getCustomer = async (customerId: string | number) => {
   const response = await axiosInstance.get<Customer>(`/api/customers/${customerId}`);
   return response.data;
 };
@@ -16,7 +16,7 @@ export const createCustomer = async (input: CustomerInput) => {
   return response.data;
 };
 
-export const updateCustomer = async (customerId: string, input: CustomerInput) => {
+export const updateCustomer = async (customerId: string | number, input: CustomerInput) => {
   const response = await axiosInstance.put<Customer>(
     `/api/customers/${customerId}`,
     input
@@ -24,6 +24,6 @@ export const updateCustomer = async (customerId: string, input: CustomerInput) =
   return response.data;
 };
 
-export const removeCustomer = async (customerId: string) => {
+export const removeCustomer = async (customerId: string | number) => {
   await axiosInstance.delete(`/api/customers/${customerId}`);
 };
