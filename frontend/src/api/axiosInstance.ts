@@ -5,7 +5,7 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// 🔥 Attach token automatically
+
 axiosInstance.interceptors.request.use((config) => {
   const stored = localStorage.getItem("crm_session");
 
