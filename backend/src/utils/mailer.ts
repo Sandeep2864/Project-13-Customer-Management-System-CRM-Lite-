@@ -32,7 +32,7 @@ export async function sendPasswordResetEmail(
     },
   });
 
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const clientUrl = process.env.CLIENT_URL;
   // This link opens your frontend ResetPasswordPage with the token in the URL
   const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
 
