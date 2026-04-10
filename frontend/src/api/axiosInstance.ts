@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://project-13-customer-management-syst-zeta.vercel.app",
   withCredentials: true,
 });
 
