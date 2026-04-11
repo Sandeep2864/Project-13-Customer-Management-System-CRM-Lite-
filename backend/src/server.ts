@@ -1,44 +1,59 @@
-// src/server.ts  — FULL FILE (replaces your existing one)
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import sequelize from "./config/db.js";
 import User from "./models/User.js";
 import Customer from "./models/Customer.js";
-import PasswordResetToken from "./models/PasswordResetToken.js"; // ← ADD THIS
+import PasswordResetToken from "./models/PasswordResetToken.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import customerRoutes from "./routes/customers.js";
 
 dotenv.config();
 
-async function bootstrap(): Promise<void> {
-  // step-1: test db connection
-  console.log("Connecting to db");
+const app = express();
+
+app.use(express.json());
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/customers", customerRoutes);
+
+app.get("/", (_req, res) => {
+  res.json({ message: "CRM LITE API IS RUNNING" });
+});
+
+// Global error handler
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+  console.error("Unhandled error:", err.message);
+  res.status(500).json({ message: "Internal server error." });
+});
+
+// ⚠️ Important: Run DB init ONCE per cold start
+let isDbConnected = false;
+
+async function initDB() {
+  if (isDbConnected) return;
+
   try {
+    console.log("Connecting to DB...");
     await sequelize.authenticate();
-    console.log("MySQL connected successfully");
-  } catch (error) {
-    console.error("MySQL connection failed:", error);
-    process.exit(0);
-  }
 
-  // step-2: sync schema
-  // sequelize.sync({ alter: true }) will automatically CREATE the new
-  // password_reset_tokens table — you don't need to do anything manually.
-  console.log("Syncing db schema");
-  try {
-    await sequelize.sync({ alter: true });
-    console.log("db schema synced");
-  } catch (error) {
-    console.error("Schema sync failed:", error);
-    process.exit(1);
-  }
+    console.log("Syncing DB...");
+    await sequelize.sync();
 
-  // step-3: seed SuperAdmin if not exists
-  console.log("Checking seed data");
-  try {
-    const existing = await User.findByEmail("superadmin@crm.com");
+    // Seed admin (runs once per cold start)
+    const existing = await User.findOne({
+      where: { email: "superadmin@crm.com" },
+    });
+
     if (!existing) {
       await User.create({
         name: "Super Admin",
@@ -46,47 +61,22 @@ async function bootstrap(): Promise<void> {
         password: "SuperAdmin@123",
         role: "superadmin",
       });
-      console.log("✅ Super Admin seeded. Change the password after first login.");
-    } else {
-      console.log("✅ Seed check passed — super admin already exists");
+      console.log("✅ Super Admin seeded");
     }
-  } catch (error) {
-    console.error("❌ Seeding failed:", error);
-    process.exit(1);
+
+    isDbConnected = true;
+  } catch (err) {
+    console.error("DB Init Failed:", err);
   }
-
-  const app = express();
-
-  app.use(express.json());
-  app.use(
-    cors({
-      origin: process.env.CLIENT_URL,
-      credentials: true,
-    }),
-  );
-
-  app.use("/api/auth", authRoutes);
-  app.use("/api/users", userRoutes);
-  app.use("/api/customers", customerRoutes);
-
-  app.get("/", (_req, res) => {
-    res.json({ message: "CRM LITE API IS RUNNING" });
-  });
-
-  // global error handler
-  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error("Unhandled error:", err.message);
-    res.status(500).json({ message: "Internal server error." });
-  });
-
-  const PORT = process.env.PORT;
-  app.listen(PORT, () => {
-    console.log("Server is running on port", PORT);
-  });
 }
 
-bootstrap();
+// 👇 THIS is what Vercel uses
+export default async function handler(req: any, res: any) {
+  await initDB();
+  return app(req, res);
+}
 
+// Keep models registered
 void User;
 void Customer;
-void PasswordResetToken; // ← keeps the model registered with Sequelize
+void PasswordResetToken;
