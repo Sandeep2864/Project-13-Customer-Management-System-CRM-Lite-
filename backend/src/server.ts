@@ -13,13 +13,21 @@ dotenv.config();
 
 const app = express();
 
-app.use(express.json());
+// ✅ CORS FIX ADDED HERE
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [
+      "http://localhost:5173",
+      "https://project-13-customer-management-system-crm-lite-9wpxqrjtv.vercel.app"
+    ],
     credentials: true,
   })
 );
+
+// ✅ Preflight fix (IMPORTANT)
+app.options("*", cors());
+
+app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -36,7 +44,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ message: "Internal server error." });
 });
 
-// ⚠️ Important: Run DB init ONCE per cold start
+// DB init (safe for serverless)
 let isDbConnected = false;
 
 async function initDB() {
@@ -49,7 +57,6 @@ async function initDB() {
     console.log("Syncing DB...");
     await sequelize.sync();
 
-    // Seed admin (runs once per cold start)
     const existing = await User.findOne({
       where: { email: "superadmin@crm.com" },
     });
@@ -70,13 +77,13 @@ async function initDB() {
   }
 }
 
-// 👇 THIS is what Vercel uses
+// Vercel handler
 export default async function handler(req: any, res: any) {
   await initDB();
   return app(req, res);
 }
 
-// Keep models registered
+// keep models registered
 void User;
 void Customer;
 void PasswordResetToken;
