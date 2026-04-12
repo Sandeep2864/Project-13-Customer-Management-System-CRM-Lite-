@@ -1,10 +1,15 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
+
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import sequelize from "./config/db.js";
+
 import User from "./models/User.js";
 import Customer from "./models/Customer.js";
 import PasswordResetToken from "./models/PasswordResetToken.js";
+
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import customerRoutes from "./routes/customers.js";
@@ -20,7 +25,7 @@ const allowedOrigins = [
   "http://project-13-customer-management-system-crm-sandeep2864s-projects.vercel.app"
 ];
 
-// ✅ CORS CONFIG (single source of truth)
+// ✅ CORS CONFIG
 const corsOptions = {
   origin: function (origin: any, callback: any) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -33,10 +38,10 @@ const corsOptions = {
   credentials: true,
 };
 
-// ✅ APPLY CORS (ONLY ONCE)
+// ✅ APPLY CORS
 app.use(cors(corsOptions));
 
-// ✅ FIX PRE-FLIGHT REQUESTS (IMPORTANT)
+// ✅ PRE-FLIGHT HANDLER
 app.options("*", cors(corsOptions));
 
 app.use(express.json());
