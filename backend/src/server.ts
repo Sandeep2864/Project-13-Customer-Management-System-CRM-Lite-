@@ -13,19 +13,30 @@ dotenv.config();
 
 const app = express();
 
-// ✅ CORS FIX ADDED HERE
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://project-13-customer-management-syst.vercel.app"
-    ],
-    credentials: true,
-  })
-);
+// ✅ ALLOWED ORIGINS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://project-13-customer-management-syst.vercel.app"
+];
 
-// ✅ Preflight fix (IMPORTANT)
-app.options("*", cors());
+// ✅ CORS CONFIG (single source of truth)
+const corsOptions = {
+  origin: function (origin: any, callback: any) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("❌ Blocked by CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
+// ✅ APPLY CORS (ONLY ONCE)
+app.use(cors(corsOptions));
+
+// ✅ FIX PRE-FLIGHT REQUESTS (IMPORTANT)
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
