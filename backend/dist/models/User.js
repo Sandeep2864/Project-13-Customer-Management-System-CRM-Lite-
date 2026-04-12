@@ -1,0 +1,75 @@
+import { Model, DataTypes, } from "sequelize";
+import bcrypt from "bcryptjs";
+import sequelize from "../config/db.js";
+class User extends Model {
+    async comparePassword(plainPassword) {
+        return bcrypt.compare(plainPassword, this.password);
+    }
+    static async findByEmail(email) {
+        return User.findOne({ where: { email } });
+    }
+    static async findAllAdmins() {
+        return User.findAll({
+            where: { role: "admin" },
+            order: [["created_at", "DESC"]],
+        });
+    }
+}
+User.init({
+    id: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        validate: {
+            notEmpty: true,
+            len: [1, 100],
+        },
+    },
+    email: {
+        type: DataTypes.STRING(150),
+        allowNull: false,
+        unique: true,
+        validate: {
+            isEmail: true,
+            notEmpty: true,
+        },
+    },
+    password: {
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
+    role: {
+        type: DataTypes.ENUM("admin", "superadmin"),
+        allowNull: false,
+        defaultValue: "admin",
+    },
+    is_active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+    },
+    created_at: DataTypes.DATE,
+    updated_at: DataTypes.DATE,
+}, {
+    sequelize,
+    tableName: "users",
+    modelName: "User",
+    timestamps: true,
+    createdAt: "created_at", // Map Sequelize name to your DB column name
+    updatedAt: "updated_at",
+});
+User.beforeCreate(async (user) => {
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
+});
+User.beforeUpdate(async (user) => {
+    if (user.changed("password")) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+    }
+});
+export default User;
