@@ -16,7 +16,8 @@ const app = express();
 // ✅ ALLOWED ORIGINS
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://project-13-customer-management-syst.vercel.app"
+  "https://project-13-customer-management-syst.vercel.app",
+  "http://project-13-customer-management-system-crm-sandeep2864s-projects.vercel.app"
 ];
 
 // ✅ CORS CONFIG (single source of truth)
