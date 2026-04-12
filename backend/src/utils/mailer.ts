@@ -6,19 +6,21 @@ export async function sendPasswordResetEmail(
   resetToken: string,
 ): Promise<void> {
 
-  // ✅ SAFE TRANSPORT (NO TYPE ERRORS IN RENDER BUILD)
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
+  // ✅ FIX: use "as any" to bypass strict TypeScript Nodemailer errors on Render
+  const transporter = nodemailer.createTransport(
+    {
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
 
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS, // Gmail App Password
-    },
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS, // Gmail App Password
+      },
 
-    family: 4, // 🔥 FORCE IPv4 (fix ENETUNREACH issue on Render)
-  });
+      family: 4, // 🔥 FORCE IPv4 (fix ENETUNREACH error)
+    } as any
+  );
 
   const clientUrl = process.env.CLIENT_URL;
   const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
@@ -35,7 +37,7 @@ export async function sendPasswordResetEmail(
   <meta charset="UTF-8"/>
   <title>Password Reset</title>
 </head>
-<body style="font-family:Arial;background:#0f1117;color:#fff;padding:20px;">
+<body style="font-family:Arial,sans-serif;background:#0f1117;color:#fff;padding:20px;">
 
   <div style="max-width:600px;margin:auto;background:#181b24;padding:30px;border-radius:12px;">
 
