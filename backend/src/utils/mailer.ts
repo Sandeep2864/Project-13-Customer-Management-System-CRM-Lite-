@@ -1,7 +1,8 @@
 import nodemailer from "nodemailer";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 /**
- * Sends a real password-reset email to `toEmail`.
+ * Sends password reset email
  */
 export async function sendPasswordResetEmail(
   toEmail: string,
@@ -9,19 +10,17 @@ export async function sendPasswordResetEmail(
   resetToken: string,
 ): Promise<void> {
 
+  // ✅ FIXED: Proper TS typing + IPv4 forced
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: Number(process.env.SMTP_PORT) || 465,
-    secure: Number(process.env.SMTP_PORT) === 465,
+    service: "gmail", // 🔥 avoids host/port TS issue
 
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
 
-    // 🔥 FORCE IPv4 (VERY IMPORTANT FIX FOR RENDER)
-    family: 4
-  });
+    family: 4, // 🔥 FORCE IPv4 (fixes ENETUNREACH issue)
+  } as SMTPTransport.Options);
 
   const clientUrl = process.env.CLIENT_URL;
   const resetLink = `${clientUrl}/reset-password?token=${resetToken}`;
@@ -39,13 +38,14 @@ export async function sendPasswordResetEmail(
   <title>Reset your password</title>
 </head>
 <body style="margin:0;padding:0;background:#0f1117;font-family:'Segoe UI',Arial,sans-serif;">
+
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f1117;padding:48px 0;">
     <tr>
       <td align="center">
 
         <table width="540" cellpadding="0" cellspacing="0"
           style="background:#181b24;border-radius:20px;
-                 border:1px solid rgba(255,255,255,0.07);overflow:hidden;
+                 border:1px solid rgba(255,255,255,0.07);
                  box-shadow:0 32px 80px rgba(0,0,0,0.5);">
 
           <tr>
@@ -53,34 +53,40 @@ export async function sendPasswordResetEmail(
           </tr>
 
           <tr>
-            <td style="padding:44px 52px 40px;">
+            <td style="padding:44px 52px;">
 
-              <p style="margin:0 0 4px;font-size:10px;font-weight:800;letter-spacing:4px;
-                        text-transform:uppercase;color:rgba(255,255,255,0.28);">CRM Lite</p>
+              <p style="margin:0;font-size:10px;font-weight:800;letter-spacing:4px;
+                        text-transform:uppercase;color:rgba(255,255,255,0.28);">
+                CRM Lite
+              </p>
 
-              <h1 style="margin:0 0 8px;font-size:28px;font-weight:700;color:#ffffff;">
+              <h1 style="margin:8px 0 16px;font-size:28px;font-weight:700;color:#fff;">
                 Password Reset
               </h1>
 
-              <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.55);">
-                Hi <strong>${toName}</strong>, we received a request to reset your password
-                (<strong>${toEmail}</strong>).
+              <p style="margin:0 0 24px;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.6);">
+                Hi <strong style="color:#fff;">${toName}</strong>, we received a request
+                to reset your password for <strong>${toEmail}</strong>.
               </p>
 
-              <table cellpadding="0" cellspacing="0">
+              <table>
                 <tr>
-                  <td style="background:linear-gradient(90deg,#a8b117 0%,#0d6d40 100%);
-                             border-radius:14px;">
+                  <td style="background:linear-gradient(90deg,#a8b117,#0d6d40);
+                             border-radius:12px;">
                     <a href="${resetLink}"
-                       style="display:inline-block;padding:15px 42px;
-                              font-size:16px;font-weight:700;color:#fff;text-decoration:none;">
-                      Reset My Password
+                       style="display:inline-block;padding:14px 36px;
+                              color:#fff;text-decoration:none;font-weight:700;">
+                      Reset Password
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin:28px 0 0;font-size:12px;color:rgba(255,255,255,0.25);">
+              <p style="margin-top:24px;font-size:12px;color:rgba(255,255,255,0.3);">
+                This link will expire in 10 minutes.
+              </p>
+
+              <p style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.3);word-break:break-all;">
                 ${resetLink}
               </p>
 
@@ -96,6 +102,7 @@ export async function sendPasswordResetEmail(
       </td>
     </tr>
   </table>
+
 </body>
 </html>
     `,
