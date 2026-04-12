@@ -16,9 +16,7 @@ export async function sendPasswordResetEmail(
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS, // Gmail App Password
-      },
-
-      family: 4, // 🔥 FORCE IPv4 (fix ENETUNREACH error)
+      }
     } as any
   );
 
