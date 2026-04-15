@@ -1,3 +1,4 @@
+// ================== 🔹 IMPORTS ==================
 import dns from "dns";
 dns.setDefaultResultOrder("ipv4first");
 
@@ -14,65 +15,70 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import customerRoutes from "./routes/customers.js";
 
-// ✅ ENV LOAD
+// ================== 🔹 ENV CONFIG ==================
+const isProduction = process.env.NODE_ENV === "production";
+
 dotenv.config({
-  path: process.env.NODE_ENV === "production"
-    ? ".env.production"
-    : ".env",
+  path: isProduction ? ".env.production" : ".env",
 });
 
+// ================== 🔹 APP INIT ==================
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://project-13-customer-management-system-crm-sandeep2864s-projects.vercel.app",
-];
+// ================== 🔹 CORS CONFIG ==================
+const allowedOrigins = isProduction
+  ? [
+      "https://project-13-customer-management-system-crm-sandeep2864s-projects.vercel.app",
+    ]
+  : ["http://localhost:5173"];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    console.log("Incoming origin:", origin); // DEBUG
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      console.log("🌐 Incoming Origin:", origin);
 
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-}));
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ CORS Blocked:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
-
-
+// ================== 🔹 MIDDLEWARE ==================
 app.use(express.json());
 
-// ✅ ROUTES
+// ================== 🔹 ROUTES ==================
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/customers", customerRoutes);
 
 app.get("/", (_req, res) => {
-  res.json({ message: "CRM API RUNNING" });
+  res.json({ message: "🚀 CRM API RUNNING" });
 });
 
-// ✅ ERROR HANDLER
+// ================== 🔹 ERROR HANDLER ==================
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error(err.message);
+  console.error("❌ Error:", err.message);
   res.status(500).json({ message: "Internal server error" });
 });
 
-// ✅ DB INIT
+// ================== 🔹 DB INIT ==================
 let isDbConnected = false;
 
 async function initDB() {
   if (isDbConnected) return;
 
   try {
+    console.log("🔄 Connecting DB...");
     await sequelize.authenticate();
-    console.log("✅ DB connected");
 
+    console.log("🔄 Syncing DB...");
     await sequelize.sync();
-    console.log("✅ DB synced");
 
     const existing = await User.findOne({
       where: { email: "superadmin@crm.com" },
@@ -85,32 +91,33 @@ async function initDB() {
         password: "SuperAdmin@123",
         role: "superadmin",
       });
-      console.log("✅ Super Admin created");
+      console.log("✅ Super Admin Seeded");
     }
 
     isDbConnected = true;
   } catch (err) {
-    console.error("❌ DB error:", err);
+    console.error("❌ DB Init Failed:", err);
   }
 }
 
-// ✅ LOCAL DEV SERVER
-if (process.env.NODE_ENV !== "production") {
+// ================== 🔹 DEV SERVER ==================
+if (!isProduction) {
   (async () => {
     await initDB();
+
     app.listen(PORT, () => {
-      console.log(`🚀 http://localhost:${PORT}`);
+      console.log(`🚀 DEV SERVER: http://localhost:${PORT}`);
     });
   })();
 }
 
-// ✅ VERCEL EXPORT
+// ================== 🔹 PRODUCTION HANDLER ==================
 export default async function handler(req: any, res: any) {
   await initDB();
   return app(req, res);
 }
 
-// keep models
+// ================== 🔹 KEEP MODELS ==================
 void User;
 void Customer;
 void PasswordResetToken;
