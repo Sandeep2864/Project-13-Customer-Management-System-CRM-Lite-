@@ -9,6 +9,7 @@ import {
 import bcrypt from "bcryptjs";
 import sequelize from "../config/db.js";
 
+
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<number>;
   declare name: string;
@@ -98,5 +99,6 @@ User.beforeUpdate(async (user: User) => {
     user.password = await bcrypt.hash(user.password, salt);
   }
 });
+
 
 export default User;

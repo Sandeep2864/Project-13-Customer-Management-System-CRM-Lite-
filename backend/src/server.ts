@@ -15,6 +15,10 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import customerRoutes from "./routes/customers.js";
 
+// ✅ ADD RELATIONSHIPS HERE (After Imports, Before App Logic)
+User.hasMany(Customer, { foreignKey: "created_by", as: "customers" });
+Customer.belongsTo(User, { foreignKey: "created_by", as: "creator" });
+
 // ================== 🔹 ENV CONFIG ==================
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -78,7 +82,7 @@ async function initDB() {
     await sequelize.authenticate();
 
     console.log("🔄 Syncing DB...");
-    await sequelize.sync();
+    await sequelize.sync({alter:true});
 
     const existing = await User.findOne({
       where: { email: "superadmin@crm.com" },
