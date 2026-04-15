@@ -14,65 +14,65 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import customerRoutes from "./routes/customers.js";
 
-dotenv.config();
+// ✅ ENV LOAD
+dotenv.config({
+  path: process.env.NODE_ENV === "production"
+    ? ".env.production"
+    : ".env",
+});
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-// ✅ ALLOWED ORIGINS
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://project-13-customer-management-syst.vercel.app",
-  "http://project-13-customer-management-system-crm-sandeep2864s-projects.vercel.app"
+  "https://project-13-customer-management-system-crm-sandeep2864s-projects.vercel.app",
 ];
 
-// ✅ CORS CONFIG
-const corsOptions = {
-  origin: function (origin: any, callback: any) {
+app.use(cors({
+  origin: (origin, callback) => {
+    console.log("Incoming origin:", origin); // DEBUG
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log("❌ Blocked by CORS:", origin);
       callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
-};
+}));
 
-// ✅ APPLY CORS
-app.use(cors(corsOptions));
 
-// ✅ PRE-FLIGHT HANDLER
-app.options("*", cors(corsOptions));
 
 app.use(express.json());
 
-// Routes
+// ✅ ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/customers", customerRoutes);
 
 app.get("/", (_req, res) => {
-  res.json({ message: "CRM LITE API IS RUNNING" });
+  res.json({ message: "CRM API RUNNING" });
 });
 
-// Global error handler
+// ✅ ERROR HANDLER
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-  console.error("Unhandled error:", err.message);
-  res.status(500).json({ message: "Internal server error." });
+  console.error(err.message);
+  res.status(500).json({ message: "Internal server error" });
 });
 
-// DB init (safe for serverless)
+// ✅ DB INIT
 let isDbConnected = false;
 
 async function initDB() {
   if (isDbConnected) return;
 
   try {
-    console.log("Connecting to DB...");
     await sequelize.authenticate();
+    console.log("✅ DB connected");
 
-    console.log("Syncing DB...");
     await sequelize.sync();
+    console.log("✅ DB synced");
 
     const existing = await User.findOne({
       where: { email: "superadmin@crm.com" },
@@ -85,22 +85,32 @@ async function initDB() {
         password: "SuperAdmin@123",
         role: "superadmin",
       });
-      console.log("✅ Super Admin seeded");
+      console.log("✅ Super Admin created");
     }
 
     isDbConnected = true;
   } catch (err) {
-    console.error("DB Init Failed:", err);
+    console.error("❌ DB error:", err);
   }
 }
 
-// Vercel handler
+// ✅ LOCAL DEV SERVER
+if (process.env.NODE_ENV !== "production") {
+  (async () => {
+    await initDB();
+    app.listen(PORT, () => {
+      console.log(`🚀 http://localhost:${PORT}`);
+    });
+  })();
+}
+
+// ✅ VERCEL EXPORT
 export default async function handler(req: any, res: any) {
   await initDB();
   return app(req, res);
 }
 
-// keep models registered
+// keep models
 void User;
 void Customer;
 void PasswordResetToken;

@@ -4,8 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_OPTIONS=\"--loader ts-node/esm --no-warnings\" ts-node src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +22,8 @@
     "mysql2": "^3.20.0",
     "nodemailer": "^8.0.4",
     "sequelize": "^6.37.8",
-    "tedious": "^19.2.1"
+    "tedious": "^19.2.1",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
