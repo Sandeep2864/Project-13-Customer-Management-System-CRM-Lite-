@@ -15,6 +15,10 @@ export type CustomerStatus = "Lead" | "Active" | "InActive";
 export interface CustomerFilters {
   status?: string;
   search?: string;
+  user?: {
+    id: number;
+    role: string;
+  };
 }
 
 class Customer extends Model<
@@ -39,29 +43,44 @@ class Customer extends Model<
   declare readonly created_at: CreationOptional<Date>;
   declare readonly updated_at: CreationOptional<Date>;
 
-  static async findAllFiltered(filters: CustomerFilters) {
-    const where: WhereOptions = {};
+static async findAllFiltered(filters: CustomerFilters) {
+  const where: WhereOptions = {};
 
-    if (filters.status && filters.status !== "All") {
-      where["status"] = filters.status;
+  // ✅ FILTER BY USER
+  if (filters.user) {
+    if (filters.user.role === "admin") {
+      where["created_by"] = filters.user.id; // 🔥 KEY LINE
     }
-
-    if (filters.search) {
-      where["name"] = { [Op.like]: `%${filters.search}%` };
-    }
-
-    return Customer.findAll({
-      where,
-      include: [
-        {
-          model: User,
-          as: "creator",
-          attributes: ["id", "name", "email", "role"],
-        },
-      ],
-      order: [["created_at", "DESC"]],
-    });
+    // superadmin → no filter (gets all)
   }
+
+  // ✅ STATUS FILTER
+  if (filters.status && filters.status !== "All") {
+    where["status"] = filters.status;
+  }
+
+  // ✅ SEARCH FILTER
+  if (filters.search) {
+    (where as any)[Op.or] = [
+      { name: { [Op.like]: `%${filters.search}%` } },
+      { company: { [Op.like]: `%${filters.search}%` } },
+      { email: { [Op.like]: `%${filters.search}%` } },
+      { city: { [Op.like]: `%${filters.search}%` } },
+    ];
+  }
+
+  return Customer.findAll({
+    where,
+    include: [
+      {
+        model: User,
+        as: "creator",
+        attributes: ["id", "name", "email", "role"],
+      },
+    ],
+    order: [["created_at", "DESC"]],
+  });
+}
 }
 
 Customer.init(

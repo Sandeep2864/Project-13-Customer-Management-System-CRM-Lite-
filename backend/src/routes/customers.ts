@@ -16,6 +16,7 @@ router.get("/", async (req: AuthRequest, res: Response): Promise<void> => {
     const customers = await Customer.findAllFiltered({
       status: status as string | undefined,
       search: search as string | undefined,
+      user: req.user, // Pass user info for potential user-specific filtering
     });
     res.status(200).json(customers);
   } catch (error) {
